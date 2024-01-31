@@ -1,121 +1,55 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useRef, useEffect, useState } from "react";
-import ShelterList from "./ShelterList";
-import FilterDropdown from "./FilterDropdown";
-import Map from "./Map";
-import { Avatar, Badge, Box, Flex, IconButton } from "@radix-ui/themes";
-import mapboxgl from "mapbox-gl";
-mapboxgl.accessToken = import.meta.env.VITE_SHELTERHUB_API_KEY;
-const api__key = import.meta.env.VITE_SOME_KEY;
-const viteenvvars = import.meta;
-console.log(import.meta.env.VITE_SOME_KEY, { api__key, viteenvvars });
-import satelliteIcon from "./assets/satellite.svg";
-import outdoorsIcon from "./assets/outdoors.svg";
-import sunIcon from "./assets/sun.svg";
-import darkIcon from "./assets/dark.svg";
+import { SheltersList } from "./Shelters/SheltersList";
+
+// import Map from "./Map.jsx";
+import { shelters as _shelters } from "./assets/shelters.js";
+// import { Avatar, Badge, Box, Flex, IconButton,Card } from "@radix-ui/themes";
+
+// const api__key = import.meta.env.VITE_SOME_KEY;
+// const viteenvvars = import.meta;
+// console.log(import.meta.env.VITE_SOME_KEY, { api__key, viteenvvars });
+import { Map } from "./Map/Map";
 
 const App = () => {
-  console.log({ apikey: mapboxgl.accessToken });
-
-
-  const mapContainer = useRef(null);
-  const map = useRef(null);
-  const [lng, setLng] = useState(-70.9);
-  const [lat, setLat] = useState(42.35);
-  const [zoom, setZoom] = useState(9);
-  const [selectedShelter, setSelectedShelter] = useState(null);
-  const [mapStyle, setMapStyle] = useState(() => "streets-v12");
-  const handleMarkerClick = (index) => {
-    setSelectedShelter(index);
-  };
-  const handleSelectMapStyle = (selectedStyle) => {
-    setMapStyle(() => selectedStyle);
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: `mapbox://styles/mapbox/${mapStyle}`,
-      center: [lng, lat],
-      zoom: zoom,
-    });
-  };
-  useEffect(() => {
-    if (map.current) return; // initialize map only once
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: `mapbox://styles/mapbox/${mapStyle}`,
-      center: [lng, lat],
-      zoom: zoom,
-    });
-    map.current.on("move", () => {
-      setLng(map.current.getCenter().lng.toFixed(4));
-      setLat(map.current.getCenter().lat.toFixed(4));
-      setZoom(map.current.getZoom().toFixed(2));
-    });
-  });
-  const layerIcons = {
-    "satellite-streets-v12": satelliteIcon,
-    "light-v11": sunIcon,
-    "dark-v11": darkIcon,
-    "outdoors-v12": outdoorsIcon,
-  };
+  const [selectedShelter, setSelectedShelter] = useState(() => 0);
+  const [shelters, setShelters] = useState(() => _shelters);
   return (
-    <div style={{ height: "100vmin", width: "100vmin" }}>
-      <div style={{ height: "49vmin", width: "49vmin" }}>
-        <div className="sidebar">
-          Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}| map style:{" "}
-          <LayerControls
-            mapStyle={mapStyle}
-            layers={layers}
-            handleSelectMapStyle={handleSelectMapStyle}
-            layerIcons={layerIcons}
-          />
-        </div>
-        <div
-          ref={mapContainer}
-          className="map-container"
-          style={{ width: "49vmin !important", height: "49vmin !important" }}
-        />{" "}
-        <FilterDropdown
-          onChange={(filter) => console.log(`Filter: ${filter}`)}
-        />
-        <ShelterList />
-      </div>
-    </div>
+    <>
+
+      <Map
+        selectedShelter={shelters[0]}
+        onMarkerClick={(e) => setSelectedShelter(e.target.id)}
+        shelters={_shelters}
+      />
+      <SheltersList
+        shelters={[
+          {
+            name: "Grand Central Neighborhood",
+            location: "145 East 43rd Street, New York, NY 10017",
+            type: "Drop-In Center",
+            services: [
+              "Hot meals",
+              "Showers",
+              "Laundry facilities",
+              "Clothing",
+              "Medical care",
+              "Recreational space",
+              "Employment referrals",
+              "Other social services",
+            ],
+            coordinates: {
+              latitude: 40.751205,
+              longitude: -73.975423,
+            },
+          },
+        ]}
+      />
+    </>
   );
 };
 
 export default App;
-const layers = [
-  "satellite-streets-v12",
-  "light-v11",
-  "dark-v11",
-  "outdoors-v12",
-];
-
-const LayerControls = ({
-  layers,
-  handleSelectMapStyle,
-  mapStyle,
-  layerIcons,
-}) => (
-  <div style={{ display: "flex", gap: 5 }}>
-    {layers.map((layer) => (
-      <IconButton
-        key={layer}
-        size="1"
-        variant={mapStyle === layer ? "solid" : "soft"}
-        color={mapStyle === layer ? "crimson" : "white"}
-        onClick={() => handleSelectMapStyle(layer)}
-      >
-        <img
-          src={layerIcons[layer]}
-          width="50"
-          height="50"
-          style={{ color: mapStyle === layer ? "crimson" : "white" }}
-        />
-      </IconButton>
-    ))}
-  </div>
-);
 
 /*
 map
