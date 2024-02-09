@@ -41,3 +41,7 @@
   color: #888;
 }
 
+.testComponentClassName{
+border:solid pink 5px;
+background: indigo;
+}
