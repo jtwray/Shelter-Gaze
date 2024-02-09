@@ -350,12 +350,12 @@ export const shelters = [
       longitude: -73.589343,
     },
   },
-  {
-    name: "Common Ground",
-    location: "http://www.commonground.org",
-    type: "Shelter",
-    services: [],
-  },
+  // {
+  //   name: "Common Ground",
+  //   location: "http://www.commonground.org",
+  //   type: "Shelter",
+  //   services: [],
+  // },
   {
     name: "The Partnership for the Homeless",
     location: "www.partnershipforthehomeless.org, 305 Seventh Avenue, 11th Floor, Manhattan",
