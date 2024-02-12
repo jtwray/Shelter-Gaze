@@ -1,7 +1,6 @@
 import * as React from "react";
 
-const TOKEN = import.meta.env.VITE_SHELTERHUB_API_KEY;
-
+const TOKEN = import.meta.env.VITE_SHELTERHUB_API_KEY_PUB;
 import Map, {
   Marker,
   Popup,

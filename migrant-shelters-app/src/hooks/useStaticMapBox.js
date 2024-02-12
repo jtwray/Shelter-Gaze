@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useWindowSize } from "./useWindowSize";
-const TOKEN = import.meta.env.VITE_SHELTERHUB_API_KEY;
+const TOKEN = import.meta.env.VITE_SHELTERHUB_API_KEY_PUB;
 
 export function useStaticMapBox(lat, lon, zoom=15, setWidth = null, setHeight = null) {
   const [w, h] = useWindowSize();
