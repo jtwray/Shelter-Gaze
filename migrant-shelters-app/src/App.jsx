@@ -7,6 +7,18 @@ import { SheltersMap } from "./Shelters/Map/SheltersMap.jsx";
 import "./App.css";
 import { MapProvider } from "react-map-gl";
 import { useBrowserGPS } from "./hooks/useBrowserGPS.js";
+import { Background } from "./Background/Background.jsx";
+import {
+  PeacockPage,
+  PeacockFeathers,
+  PeacockComponent,
+  PeacockAnimation,
+  PeacockAnimation2,
+  PeacockAnimation3,
+  PeacockAnimation4,
+  PeacockAnimation5,
+  PeacockAnimation6,
+} from "./Peacock/Peacock";
 
 const App = () => {
   const [selectedShelterName, setSelectedShelterName] = useState(() => 0);
@@ -32,12 +44,22 @@ const App = () => {
 
   return (
     <Theme
-      accentColor="mint"
+      accentColor="ruby"
       grayColor="gray"
       panelBackground="translucent"
       scaling="100%"
       radius="full"
     >
+      {/* <Background /> */}
+      {/* <PeacockPage /> */}
+      {/* <PeacockFeathers/> */}
+      {/* <PeacockAnimation /> */}
+      {/* <PeacockAnimation2 /> */}
+      {/* <PeacockAnimation3 /> */}
+      {/* <PeacockAnimation4 /> */}
+      {/* <PeacockAnimation5 /> */}
+      <PeacockAnimation6 />
+      {/* <PeacockComponent /> */}
       <Flex>
         <MapProvider>
           <SheltersMap

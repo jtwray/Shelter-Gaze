@@ -1,4 +1,4 @@
-:root {
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -67,8 +67,16 @@ button:focus-visible {
   }
 }
 
-/* body { margin: 0; padding: 0; }
+/*
 #map { position: absolute; top: 0; bottom: 0; width: 100%; } */
+body {
+  margin: 0;
+  padding: 0;
+  background: url("./assets/blob-scene-haikei.svg");
+  background: url("./assets/bg_bggenerator_com.png");
+  /* position:relative;
+  z-index: -1; */
+}
 
 .sidebar {
   background-color: rgb(35 55 75 / 90%);
@@ -82,9 +90,8 @@ button:focus-visible {
   margin: 12px;
   border-radius: 4px;
 }
-
-.map-container {
+*/ .map-container {
   height: 100vmin;
-  width: 100vmin;
-  }
-
+  width: 100vmin;position:relative;
+  /* z-index: 1; */
+}

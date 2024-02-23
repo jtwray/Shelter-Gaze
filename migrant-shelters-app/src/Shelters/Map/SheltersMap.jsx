@@ -12,6 +12,7 @@ import Map, {
 // import "./App.css";
 import Pin from "./Pin";
 import SHELTERS from "../../assets/shelters.json";
+const StyledMarker = withCustomStyles(Marker);
 
 export function SheltersMap({
   viewState,
@@ -101,9 +102,9 @@ export function Pins({ selectedShelterCardName, setPopupInfo }) {
     <>
       {" "}
       {SHELTERS.map((shelter, index) => {
-        // const selectedShelterCardName == shelter.name ? 40 : 20;
+        const isSelectedShelter = selectedShelterCardName == shelter.name; // const selectedShelterCardName == shelter.name ? 40 : 20;
         return (
-          <Marker
+          <StyledMarker
             key={`marker-${index}`}
             longitude={shelter.coordinates.longitude}
             latitude={shelter.coordinates.latitude}
@@ -114,11 +115,31 @@ export function Pins({ selectedShelterCardName, setPopupInfo }) {
               e.originalEvent.stopPropagation();
               setPopupInfo(shelter);
             }}
+            // style={
+            //   selectedShelterCardName == shelter.name
+            //     ? { border: "solid indigo 5px" }
+            //     : {}
+            // }
+            style={
+              isSelectedShelter
+                ? { border: "solid indigo 5px", zIndex: 15 }
+                : { border: "none", zIndex: 1 }
+            }
           >
-            <Pin size={selectedShelterCardName == shelter.name ? 40 : 20} />
-          </Marker>
+            <Pin
+              size={isSelectedShelter ? 40 : 20}
+              isActive={isSelectedShelter ? true : false}
+            />
+          </StyledMarker>
         );
       })}
     </>
   );
+}
+
+function withCustomStyles(Component) {
+  return function WrappedComponent(props) {
+    const newStyles = { ...props.style };
+    return <Component {...props} style={newStyles} />;
+  };
 }
