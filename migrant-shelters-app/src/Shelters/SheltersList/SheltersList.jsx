@@ -3,8 +3,9 @@ import { useMemo } from "react";
 import { Flex } from "@radix-ui/themes";
 import { CardWithMap } from "../ShelterCard/Card.jsx";
 import { useMap } from "react-map-gl";
+import { usePagination } from "../../hooks/usePaginate.jsx";
 
-export function SheltersList({ onSelectShelter, shelters, setPopupInfo }) {
+const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
   const mapRef = useMap();
   const serviceCounts = useMemo(() => {
     const _serviceCounts = new Map();
@@ -25,27 +26,67 @@ export function SheltersList({ onSelectShelter, shelters, setPopupInfo }) {
     // );
   }, [shelters]);
   // console.log(serviceCounts);
+  const pageSize = 3; // You can adjust the pageSize as needed
+
+  // Using the usePagination hook
+  const { PageOfCards, PaginationControls } = usePagination(
+    shelters,
+    pageSize,
+    (props) => (
+      <CardWithMap
+        onSelectShelter={onSelectShelter}
+        mapRef={mapRef.mapA}
+        setPopupInfo={setPopupInfo}
+        shelter={props}
+        key={`${props.location ?? "_"}-${props.idx ?? "_"}-${props.name ?? "_"}`}
+        coords={props.coordinates}
+        title={props.name}
+        subheading={props.type}
+        address={props.location}
+        badges={props.services}
+      />
+    )
+  );
 
   return (
     <div id="shelters-container">
       <Flex direction="column" gap="3">
-        {shelters.map((eachShelter, idx) => (
-          <CardWithMap
-            onSelectShelter={onSelectShelter}
-            mapRef={mapRef.mapA}
-            setPopupInfo={setPopupInfo}
-            shelter={eachShelter}
-            key={`${eachShelter.location ?? "_"}-${idx ?? "_"}-${
-              eachShelter.name ?? "_"
-            }`}
-            coords={eachShelter.coordinates}
-            title={eachShelter.name}
-            subheading={eachShelter.type}
-            address={eachShelter.location}
-            badges={eachShelter.services}
-          />
-        ))}
+        <PageOfCards />
       </Flex>
+      <PaginationControls />
     </div>
   );
-}
+};
+
+export { SheltersList };
+
+// /**
+
+//  * chunking function takes the list of objects and the preferred size later we could set it depending on screen size or on user selected dropdown
+//  * set the shelters to a hash of indexes
+//  *
+//  * data: list of shelterObjects
+//  *
+//  * computed state:
+//  * shelters
+//  * availablePages
+//  * currentPage
+//  *
+//  * calculate in the render( not in state) :
+//  *    - calculate the sheltersToShow using the current page from the collection of available pages
+//  *    - ie: const pageToShow=availablePages[currentPage]
+//  *
+//  *
+//  *
+//  * component tree:
+//  * PageOfCards
+//  * Card
+//  * PaginationControls
+//  * Button(Back/...4,5,6.../Forward)
+//  *
+//  * view elements:
+//  * collection of cards
+//  * collection of pagebuttons as numbers
+//  * back / forward button (when logical)
+//  *
+//  * */
