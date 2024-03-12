@@ -1,7 +1,7 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/5a502ca580cc32e02669/maintainability)](https://codeclimate.com/github/YourOrganization/ShelterHub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/5a502ca580cc32e02669/test_coverage)](https://codeclimate.com/github/YourOrganization/ShelterHub/test_coverage)
 
-# ShelterHub
+# Shelter Gaze
 
 You can find the deployed project at [shelterhub.com](https://www.shelterhub.com/).
 
