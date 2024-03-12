@@ -13,6 +13,18 @@ import Map, {
 import Pin from "./Pin";
 import SHELTERS from "../../assets/shelters.json";
 
+/**
+ * Renders a map using the react-map-gl library. Displays markers on the map for each shelter
+ * and allows the user to click on a marker to view more information about the shelter in a popup.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.viewState - The current state of the map view.
+ * @param {Function} props.setViewState - Function to update the view state.
+ * @param {string} props.selectedShelterCardName - The name of the currently selected shelter card.
+ * @param {Function} props.setPopupInfo - Function to set the information to be displayed in the popup.
+ * @param {Object} props.popupInfo - Information about the shelter to be displayed in the popup.
+ * @returns {JSX.Element} - The rendered component.
+ */
 export function SheltersMap({
   viewState,
   setViewState,
@@ -20,6 +32,11 @@ export function SheltersMap({
   setPopupInfo,
   popupInfo,
 }) {
+  /**
+   * Updates the view state with the new center coordinates whenever the map is moved.
+   *
+   * @param {Object} event - The move event.
+   */
   const onMove = React.useCallback(({ viewState }) => {
     const newCenter = [viewState.longitude, viewState.latitude];
     setViewState(newCenter);

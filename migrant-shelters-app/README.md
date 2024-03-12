@@ -1,9 +1,9 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/5a502ca580cc32e02669/maintainability)](https://codeclimate.com/github/YourOrganization/ShelterHub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/5a502ca580cc32e02669/test_coverage)](https://codeclimate.com/github/YourOrganization/ShelterHub/test_coverage)
 
-# ShelterHub
+# ShelterGaze
 
-You can find the deployed project at [shelterhub.com](https://www.shelterhub.com/).
+<!-- You can find the deployed project at [shelterhub.com](https://www.shelterhub.com/). -->
 
 ## Contributors
 
@@ -11,7 +11,7 @@ You can find the deployed project at [shelterhub.com](https://www.shelterhub.com
 | :------------------------------------------: | :------------------------------------------: | :------------------------------------------: | :------------------------------------------: | :------------------------------------------: |
 | [<img src="https://avatars.githubusercontent.com/u/youruserid" width="200" />](https://github.com/yourusername) | [<img src="https://avatars.githubusercontent.com/u/member2id" width="200" />](https://github.com/member2) | [<img src="https://avatars.githubusercontent.com/u/member3id" width="200" />](https://github.com/member3) | [<img src="https://avatars.githubusercontent.com/u/member4id" width="200" />](https://github.com/member4) | [<img src="https://avatars.githubusercontent.com/u/member5id" width="200" />](https://github.com/member5) |
 | [<img src="https://github.com/favicon.ico" width="15">](https://github.com/yourusername) | [<img src="https://github.com/favicon.ico" width="15">](https://github.com/member2) | [<img src="https://github.com/favicon.ico" width="15">](https://github.com/member3) | [<img src="https://github.com/favicon.ico" width="15">](https://github.com/member4) | [<img src="https://github.com/favicon.ico" width="15">](https://github.com/member5) |
-| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/yourlinkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member2linkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member3linkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member4linkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member5linkedin/) |
+| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/yourlinkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member2linkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member3linkedin/) | [ <img src="./src/assets/account_profile_user_contact_person_avatar_placeholder-512.webp" width="15"> ](https://www.linkedin.com/in/member4linkedin/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/member5linkedin/) |
 
 <br>
 <br>

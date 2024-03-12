@@ -33,11 +33,11 @@ const usePagination = (data, pageSize, CardComponent) => {
         onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        Back
+        &lt;
       </button>
       {currentPage > 3 && (
         <>
-          <button onClick={() => setCurrentPage(startPage - 5)}>...</button>
+          <button onClick={() => setCurrentPage((currentPage - 5 >= startPage) ? (currentPage - 5) : (startPage))}>...</button>
         </>
       )}
       {Array.from({ length: availablePages.length }, (_, index) => {
@@ -56,27 +56,39 @@ const usePagination = (data, pageSize, CardComponent) => {
             </button>
           );
         }
-        return null;
+
       })}
-      {currentPage < availablePages - 2 && (
-        <>
-          <button onClick={() => setCurrentPage(startPage + 5)}>...</button>
-        </>
-      )}
+      {
+        (
+
+          (currentPage < (endPage - 2))
+        ) && (
+          <>
+            <button onClick={() => setCurrentPage((currentPage + 5 <= endPage) ? (currentPage + 5) : (endPage))}>
+              ...
+            </button>
+          </>
+        )}
       <button
         onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage === availablePages.length}
-      >
-        Forward
+      > &gt;
+
       </button>
+
     </div>
   );
 
   const PageOfCards = () => (
     <div>
-      {shelters.map((item, idx) => (
-        <CardComponent key={item.id} {...item} idx={idx} />
-      ))}
+      {
+        shelters.map(
+          CardComponent
+          // (item,idx) => (
+          //     <CardComponent key={item.id} {...item} idx={idx} />
+        )
+        // )
+      }
     </div>
   );
 
