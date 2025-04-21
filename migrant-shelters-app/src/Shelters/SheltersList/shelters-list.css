@@ -76,6 +76,28 @@
   padding: 1rem;
 }
 
+.filter-badges {
+  position: sticky;
+  top: 0;
+  background: var(--gray-1);
+  z-index: 10;
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-5);
+}
+
+.filter-badge {
+  transition: all 0.2s var(--transition-timing);
+}
+
+.filter-badge:hover {
+  transform: translateY(-1px);
+}
+
+.filter-badge[data-state='active'] {
+  transform: scale(1.05);
+  font-weight: 500;
+}
+
 @media (max-width: 768px) {
   #shelters-container {
     padding: 1rem;

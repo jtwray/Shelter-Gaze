@@ -1,14 +1,16 @@
 import "./shelters-list.css";
 import { useMemo, useState } from "react";
-import { Flex, Heading, ScrollArea } from "@radix-ui/themes";
+import { Flex, ScrollArea } from "@radix-ui/themes";
 import { CardWithMap } from "../ShelterCard/Card.jsx";
 import { useMap } from "react-map-gl";
 import { usePagination } from "../../hooks/usePaginate.jsx";
 import { LoadingState } from "../../components/LoadingState";
+import { FilterBadges } from "../../components/FilterBadges";
 
 export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
   const mapRef = useMap();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeFilters, setActiveFilters] = useState([]);
 
   const serviceCounts = useMemo(() => {
     const _serviceCounts = new Map();
@@ -25,8 +27,27 @@ export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
     return new Map([..._serviceCounts].sort());
   }, [shelters]);
 
+  const filteredShelters = useMemo(() => {
+    if (activeFilters.length === 0) return shelters;
+    return shelters.filter(shelter =>
+      activeFilters.every(filter =>
+        shelter.services.some(service => service.toLowerCase() === filter)
+      )
+    );
+  }, [shelters, activeFilters]);
+
+  const handleFilterChange = (service) => {
+    setActiveFilters(prev => {
+      const isAlreadyActive = prev.includes(service);
+      if (isAlreadyActive) {
+        return prev.filter(f => f !== service);
+      }
+      return [...prev, service];
+    });
+  };
+
   const { PageOfCards, PaginationControls } = usePagination(
-    shelters,
+    filteredShelters,
     3,
     (props) => (
       <CardWithMap
@@ -42,13 +63,17 @@ export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
         badges={props.services}
       />
     ),
-    setIsLoading // Pass setIsLoading to handle loading states during pagination
+    setIsLoading
   );
 
   return (
     <div className="list-panel">
-      <Flex p="4" justify="between" align="center">
-        <Heading size="4">Available Shelters ({shelters.length})</Heading>
+      <Flex direction="column" gap="4" p="4">
+        <FilterBadges
+          services={serviceCounts}
+          activeFilters={activeFilters}
+          onFilterChange={handleFilterChange}
+        />
       </Flex>
       <ScrollArea className="cards-container" scrollbars="vertical">
         {isLoading ? (
