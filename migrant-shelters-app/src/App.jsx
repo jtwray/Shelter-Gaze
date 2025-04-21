@@ -1,20 +1,18 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { SheltersList } from "./Shelters/SheltersList/SheltersList.jsx";
-import { Flex, Theme } from "@radix-ui/themes";
+import { Theme } from "@radix-ui/themes";
 import { shelters as _shelters } from "./assets/shelters.js";
 import { SheltersMap } from "./Shelters/Map/SheltersMap.jsx";
+import { Header } from "./components/Header";
+import { MobileNav } from "./components/MobileNav";
 import "./App.css";
 import { MapProvider } from "react-map-gl";
-import { useBrowserGPS } from "./hooks/useBrowserGPS.js";
 
 const App = () => {
-  const [selectedShelterName, setSelectedShelterName] = useState(() => 0);
-  const [shelters, setShelters] = useState(() => _shelters);
-  const [lat, setLat] = useState(36.7034368);
-  const [lng, setLng] = useState(-79.8425088);
-  const currentGeoLocation = useBrowserGPS("single");
+  const [selectedShelterName, setSelectedShelterName] = useState(null);
+  const [shelters] = useState(_shelters);
   const [popupInfo, setPopupInfo] = useState(null);
+  const [activeView, setActiveView] = useState("map"); // For mobile view state
   const [viewState, setViewState] = React.useState({
     latitude: 40.7128,
     longitude: -74.006,
@@ -22,13 +20,24 @@ const App = () => {
     bearing: 0,
     pitch: 60,
   });
+
   const onSelectShelter = useCallback(
     (mapRef, { longitude, latitude }, currentShelterName) => {
-      mapRef.flyTo({ center: [longitude, latitude], duration: 2000, zoom: 12 });
+      mapRef.flyTo({ 
+        center: [longitude, latitude], 
+        duration: 2000, 
+        zoom: 12 
+      });
       setSelectedShelterName(currentShelterName);
+      // Switch to map view on mobile when a shelter is selected
+      setActiveView("map");
     },
     []
   );
+
+  const onToggleMap = useCallback(() => {
+    setActiveView(prev => prev === "map" ? "list" : "map");
+  }, []);
 
   return (
     <Theme
@@ -38,144 +47,37 @@ const App = () => {
       scaling="100%"
       radius="full"
     >
-      <Flex>
+      <div className={`app-container view-${activeView}`}>
         <MapProvider>
-          <SheltersMap
-            viewState={viewState}
-            setViewState={setViewState}
-            popupInfo={popupInfo}
-            setPopupInfo={setPopupInfo}
-            selectedShelterCardName={selectedShelterName}
+          <div className="map-section">
+            <SheltersMap
+              viewState={viewState}
+              setViewState={setViewState}
+              popupInfo={popupInfo}
+              setPopupInfo={setPopupInfo}
+              selectedShelterCardName={selectedShelterName}
+            />
+          </div>
+          <div className="list-section">
+            <Header 
+              totalShelters={shelters.length}
+              onToggleMap={onToggleMap}
+              isMapVisible={activeView === "map"}
+            />
+            <SheltersList
+              onSelectShelter={onSelectShelter}
+              setPopupInfo={setPopupInfo}
+              shelters={shelters}
+            />
+          </div>
+          <MobileNav 
+            activeView={activeView} 
+            onViewChange={setActiveView}
           />
-          <SheltersList
-            className="testComponentClassName"
-            viewState={viewState}
-            setViewState={setViewState}
-            lat={lat}
-            lng={lng}
-            setLat={setLat}
-            setLng={setLng}
-            setPopupInfo={setPopupInfo}
-            popupInfo={popupInfo}
-            onSelectShelter={onSelectShelter}
-            shelters={_shelters ?? staticSheltersList}
-          />{" "}
         </MapProvider>
-      </Flex>
+      </div>
     </Theme>
   );
 };
 
 export default App;
-
-/*
-map
-
-markers
-
-browser gps
-
-
-
- */
-const staticSheltersList = [
-  {
-    name: "Grand Central Neighborhood",
-    location: "143 East 43rd Street, New York, NY 10017",
-    type: "Drop-In Center",
-    services: [
-      "Hot meals",
-      "Showers",
-      "Laundry facilities",
-      "Clothing",
-      "Medical care",
-      "Recreational space",
-      "Employment referrals",
-      "Other social services",
-    ],
-    coordinates: {
-      latitude: 40.751205,
-      longitude: -73.975423,
-    },
-  },
-
-  {
-    name: "Grand Central Neighborhood",
-    location: "144 East 43rd Street, New York, NY 10017",
-    type: "Drop-In Center",
-    services: [
-      "Hot meals",
-      "Showers",
-      "Laundry facilities",
-      "Clothing",
-      "Medical care",
-      "Recreational space",
-      "Employment referrals",
-      "Other social services",
-    ],
-    coordinates: {
-      latitude: 40.751205,
-      longitude: -73.975423,
-    },
-  },
-
-  {
-    name: "Grand Central Neighborhood",
-    location: "145 East 43rd Street, New York, NY 10017",
-    type: "Drop-In Center",
-    services: [
-      "Hot meals",
-      "Showers",
-      "Laundry facilities",
-      "Clothing",
-      "Medical care",
-      "Recreational space",
-      "Employment referrals",
-      "Other social services",
-    ],
-    coordinates: {
-      latitude: 40.751205,
-      longitude: -73.975423,
-    },
-  },
-
-  {
-    name: "Grand Central Neighborhood",
-    location: "146 East 43rd Street, New York, NY 10017",
-    type: "Drop-In Center",
-    services: [
-      "Hot meals",
-      "Showers",
-      "Laundry facilities",
-      "Clothing",
-      "Medical care",
-      "Recreational space",
-      "Employment referrals",
-      "Other social services",
-    ],
-    coordinates: {
-      latitude: 40.751205,
-      longitude: -73.975423,
-    },
-  },
-
-  {
-    name: "Grand Central Neighborhood",
-    location: "147 East 43rd Street, New York, NY 10017",
-    type: "Drop-In Center",
-    services: [
-      "Hot meals",
-      "Showers",
-      "Laundry facilities",
-      "Clothing",
-      "Medical care",
-      "Recreational space",
-      "Employment referrals",
-      "Other social services",
-    ],
-    coordinates: {
-      latitude: 40.751205,
-      longitude: -73.975423,
-    },
-  },
-];

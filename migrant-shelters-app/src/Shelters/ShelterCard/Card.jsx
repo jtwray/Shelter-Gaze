@@ -7,19 +7,17 @@ import {
   Box,
   AspectRatio,
   Flex,
+  ScrollArea,
 } from "@radix-ui/themes";
-import {
-  RocketIcon,
-  FaceIcon,
-  ImageIcon,
-  SunIcon,
-  SpaceBetweenHorizontallyIcon,
-} from "@radix-ui/react-icons";
+import { RocketIcon } from "@radix-ui/react-icons";
+import { useStaticMapBox } from "../../hooks/useStaticMapBox.js";
+import { useWindowSize } from "../../hooks/useWindowSize";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton";
+
 // Version 1: Card component without a map
 const BasicCard = ({ title, subheading, address, badges }) => {
   return (
     <Card>
-      {/* <Box> */}
       <Text as="h2" size="2">
         {title}
       </Text>
@@ -36,11 +34,10 @@ const BasicCard = ({ title, subheading, address, badges }) => {
           </Badge>
         ))}
       </div>
-      {/* </Box> */}
     </Card>
   );
 };
-import { useStaticMapBox } from "../../hooks/useStaticMapBox.js";
+
 // Version 2: Card component with a small map
 const CardWithMap = ({
   title,
@@ -53,107 +50,101 @@ const CardWithMap = ({
   mapRef,
   shelter,
 }) => {
-  const [crossStreetMap] = useStaticMapBox(
+  const [windowWidth] = useWindowSize();
+  const calculatedWidth = Math.min(613, windowWidth - 40);
+  const aspectRatio = 613 / 150;
+  const calculatedHeight = Math.round(calculatedWidth / aspectRatio);
+
+  const [crossStreetMap, isLoading, error] = useStaticMapBox(
     coords.latitude,
     coords.longitude,
     15,
-    613,
-    150
+    calculatedWidth,
+    calculatedHeight
   );
-  return (
-    <div>
-      <Card>
-        <div>
-          {badges.map((badge, index) => (
-            <Badge key={index} color="gray">
-              {badge}
-            </Badge>
-          ))}
-        </div>
-        {/*
-        <Flex justify="end" align="center">
-          <Box>
-            <Text as="span" size="3" mb="4">
-              {subheading} <b>{title}</b>
-            </Text>{" "}
-          </Box>
-        </Flex>
-        <Flex justify="between" align="baseline">
-          {" "}
-          <Box pb="2">
-            <Button
-              onClick={() => {
-                onSelectShelter(mapRef, coords, title);
-                setPopupInfo(() => shelter);
-              }}
-            >
-              <RocketIcon width="16" height="16" /> Show On Map
-            </Button>
-          </Box>
-          <Text as="p" size="3" color="gray" mb="2">
-            {address}
-          </Text>
-        </Flex> */}
 
-        <Flex justify="between" align='center'>
-          <Button size='4'
+  return (
+    <Card size="3" style={{ maxWidth: calculatedWidth, margin: "0 auto" }}>
+      <Flex direction="column" gap="3">
+        <Flex justify="between" align="start">
+          <Box>
+            <Text as="div" size="5" weight="bold" mb="1">
+              {title}
+            </Text>
+            <Text as="div" size="2" color="gray">
+              {subheading}
+            </Text>
+            <Text as="div" size="2" style={{ marginTop: "4px" }}>
+              {address}
+            </Text>
+          </Box>
+          <Button
+            size="2"
+            variant="soft"
             onClick={() => {
               onSelectShelter(mapRef, coords, title);
               setPopupInfo(() => shelter);
             }}
           >
-            <RocketIcon width="16" height="16" /> Show On Map
+            <RocketIcon width="16" height="16" />
+            View on Map
           </Button>
-          <Flex direction="column" align="end">
-            <em>{subheading}</em>
-            <b>{title}</b>
+        </Flex>
 
-            {address}
+        <ScrollArea>
+          <Flex gap="2" wrap="wrap" style={{ marginBottom: "8px" }}>
+            {badges.map((badge, index) => (
+              <Badge
+                key={index}
+                variant="soft"
+                color={["blue", "green", "orange", "red", "purple"][index % 5]}
+              >
+                {badge}
+              </Badge>
+            ))}
           </Flex>
-        </Flex>
-        {/* <Flex justify="end" align="center">
-          <Box>
-            <Text as="span" size="3" mb="4">
-              {subheading} <b>{title}</b>
-            </Text>{" "}
-          </Box>
-        </Flex>
-        <Flex justify="between" align='baseline'>
-          {" "}
-          <Box pb='2'>
-            <Button
-              onClick={() => {
-                onSelectShelter(mapRef, coords, title);
-                setPopupInfo(() => shelter);
-              }}
-            >
-              <RocketIcon width="16" height="16" /> Show On Map
-            </Button>
-          </Box>
-          <Text as="p" size="3" color="gray" mb="2">
-            {address}
-          </Text>
-        </Flex> */}
-        <div
+        </ScrollArea>
+
+        <Box
           style={{
-            width: "100%",
-            height: "150px",
-            backgroundColor: "#f0f0f0",
-            borderRadius: "0 0 8px 8px",
+            position: "relative",
+            borderRadius: "8px",
+            overflow: "hidden",
           }}
         >
-          <div style={{ width: "613px", height: "150px" }}>
-            <AspectRatio ratio={613 / 150}>
+          {isLoading ? (
+            <LoadingSkeleton height={calculatedHeight} />
+          ) : error ? (
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                height: calculatedHeight,
+                background: "var(--gray-3)",
+                color: "var(--gray-11)",
+                borderRadius: "8px",
+              }}
+            >
+              Unable to load map
+            </Flex>
+          ) : (
+            <AspectRatio ratio={aspectRatio}>
               <img
                 src={crossStreetMap}
-                alt="Map of the cross-streets for this shelter location."
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                alt="Map showing shelter location"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: isLoading ? 0 : 1,
+                  transition: "opacity 0.3s ease-in-out",
+                }}
               />
             </AspectRatio>
-          </div>
-        </div>
-      </Card>
-    </div>
+          )}
+        </Box>
+      </Flex>
+    </Card>
   );
 };
 

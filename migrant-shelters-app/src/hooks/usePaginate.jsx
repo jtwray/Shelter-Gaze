@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { Box } from "@radix-ui/themes";
 
-const usePagination = (data, pageSize, CardComponent) => {
+const usePagination = (data, pageSize, CardComponent, setLoading) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shelters, setShelters] = useState([]);
   const [availablePages, setAvailablePages] = useState([]);
@@ -14,87 +15,100 @@ const usePagination = (data, pageSize, CardComponent) => {
   }, [data, pageSize]);
 
   useEffect(() => {
-    if (availablePages.length > 0) {
-      setShelters(availablePages[currentPage - 1] || []);
-    }
+    const updatePage = async () => {
+      if (availablePages.length > 0) {
+        setLoading?.(true);
+        // Artificial delay for smooth transition
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setShelters(availablePages[currentPage - 1] || []);
+        setLoading?.(false);
+      }
+    };
+    updatePage();
   }, [availablePages, currentPage]);
 
-  const nextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, availablePages.length));
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-  };
-
   const PaginationControls = () => (
-    <div>
+    <Box className="pagination-controls">
       <button
-        onClick={() => setCurrentPage(currentPage - 1)}
+        className="pagination-btn"
+        onClick={() => setCurrentPage(1)}
         disabled={currentPage === 1}
+        title="First page"
       >
-        &lt;
+        {"<<"}
       </button>
+      <button
+        className="pagination-btn"
+        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+        disabled={currentPage === 1}
+        title="Previous page"
+      >
+        {"<"}
+      </button>
+
       {currentPage > 3 && (
         <>
-          <button onClick={() => setCurrentPage((currentPage - 5 >= startPage) ? (currentPage - 5) : (startPage))}>...</button>
+          <button className="pagination-btn" onClick={() => setCurrentPage(1)}>1</button>
+          {currentPage > 4 && <span>...</span>}
         </>
       )}
+
       {Array.from({ length: availablePages.length }, (_, index) => {
         const pageNumber = index + 1;
-        if (pageNumber >= startPage && pageNumber <= endPage) {
+        if (
+          pageNumber === currentPage ||
+          (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+        ) {
           return (
             <button
-              key={index}
+              key={pageNumber}
+              className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
               onClick={() => setCurrentPage(pageNumber)}
-              style={{
-                textDecoration:
-                  currentPage === pageNumber ? "underline" : "none",
-              }}
+              title={`Page ${pageNumber}`}
             >
               {pageNumber}
             </button>
           );
         }
-
+        return null;
       })}
-      {
-        (
 
-          (currentPage < (endPage - 2))
-        ) && (
-          <>
-            <button onClick={() => setCurrentPage((currentPage + 5 <= endPage) ? (currentPage + 5) : (endPage))}>
-              ...
-            </button>
-          </>
-        )}
+      {currentPage < availablePages.length - 2 && (
+        <>
+          {currentPage < availablePages.length - 3 && <span>...</span>}
+          <button 
+            className="pagination-btn"
+            onClick={() => setCurrentPage(availablePages.length)}
+          >
+            {availablePages.length}
+          </button>
+        </>
+      )}
+
       <button
-        onClick={() => setCurrentPage(currentPage + 1)}
+        className="pagination-btn"
+        onClick={() => setCurrentPage(prev => Math.min(availablePages.length, prev + 1))}
         disabled={currentPage === availablePages.length}
-      > &gt;
-
+        title="Next page"
+      >
+        {">"}
       </button>
-
-    </div>
+      <button
+        className="pagination-btn"
+        onClick={() => setCurrentPage(availablePages.length)}
+        disabled={currentPage === availablePages.length}
+        title="Last page"
+      >
+        {">>"}
+      </button>
+    </Box>
   );
 
   const PageOfCards = () => (
-    <div>
-      {
-        shelters.map(
-          CardComponent
-          // (item,idx) => (
-          //     <CardComponent key={item.id} {...item} idx={idx} />
-        )
-        // )
-      }
+    <div className="cards-grid">
+      {shelters.map(CardComponent)}
     </div>
   );
-
-  // Calculate startPage and endPage based on currentPage
-  const startPage = Math.max(1, currentPage - 2);
-  const endPage = Math.min(startPage + 4, availablePages.length);
 
   return { PaginationControls, PageOfCards };
 };

@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import { useCallback } from "react";
 const TOKEN = import.meta.env.VITE_SHELTERHUB_API_KEY_PUB;
 import Map, {
   Marker,
@@ -9,9 +9,9 @@ import Map, {
   ScaleControl,
   GeolocateControl,
 } from "react-map-gl";
-// import "./App.css";
 import Pin from "./Pin";
 import SHELTERS from "../../assets/shelters.json";
+import './map.css';
 
 /**
  * Renders a map using the react-map-gl library. Displays markers on the map for each shelter
@@ -37,105 +37,101 @@ export function SheltersMap({
    *
    * @param {Object} event - The move event.
    */
-  const onMove = React.useCallback(({ viewState }) => {
-    const newCenter = [viewState.longitude, viewState.latitude];
-    setViewState(newCenter);
+  const onMove = useCallback(({ viewState }) => {
+    setViewState(viewState);
   }, []);
 
   return (
-    <>
-      <Map
-        id="mapA"
-        onMove={onMove}
-        {...viewState}
-        initialViewState={{
-          latitude: 40.7128,
-          longitude: -74.006,
-          zoom: 9,
-          bearing: 0,
-          pitch: 60,
-        }}
-        style={{ width: "50vw", height: "80vh" }}
-        mapStyle="mapbox://styles/mapbox/dark-v9"
-        mapboxAccessToken={TOKEN}
-      >
-        <GeolocateControl position="top-left" />
-        <FullscreenControl position="top-left" />
-        <NavigationControl
-          position="top-right"
-          showCompass
-          showZoom
-          visualizePitch="true"
-        />
-        <ScaleControl position="bottom-right" />
+    <Map
+      id="mapA"
+      onMove={onMove}
+      {...viewState}
+      initialViewState={{
+        latitude: 40.7128,
+        longitude: -74.006,
+        zoom: 9,
+        bearing: 0,
+        pitch: 60,
+      }}
+      style={{ width: "100%", height: "100%" }}
+      mapStyle="mapbox://styles/mapbox/navigation-night-v1"
+      mapboxAccessToken={TOKEN}
+      transitionDuration={1000}
+      transitionInterpolator={{ type: 'fly' }}
+    >
+      <GeolocateControl 
+        position="top-left"
+        showUserLocation
+        trackUserLocation
+        style={{ marginTop: '10px' }}
+      />
+      <FullscreenControl position="top-left" />
+      <NavigationControl
+        position="top-right"
+        showCompass
+        showZoom
+        visualizePitch
+      />
+      <ScaleControl position="bottom-right" />
 
-        <Pins
-          selectedShelterCardName={selectedShelterCardName}
-          setPopupInfo={setPopupInfo}
-        />
+      <Pins
+        selectedShelterCardName={selectedShelterCardName}
+        setPopupInfo={setPopupInfo}
+      />
 
-        <PopupInfo popupInfo={popupInfo} setPopupInfo={setPopupInfo} />
-      </Map>
-    </>
-  );
-}
-
-export function PopupInfo({ popupInfo, setPopupInfo }) {
-  return (
-    <>
       {popupInfo && (
         <Popup
           anchor="top"
           longitude={Number(popupInfo.coordinates.longitude)}
           latitude={Number(popupInfo.coordinates.latitude)}
           onClose={() => setPopupInfo(null)}
-
-          //   onClick={() => setCurrentShelter(popupInfo)}
+          closeButton={true}
+          closeOnClick={false}
+          className="shelter-popup"
+          tipSize={8}
+          offsetTop={12}
         >
-          <div>
-            {popupInfo.name}
-            <br />
-            {popupInfo.type} <br />
-            {popupInfo.location} |
-            <a
-              target="_new"
-              href={`http://en.wikipedia.org/w/index.php?title=Special:Search&search=${
-                popupInfo.name
-              }, ${"New York"}`}
-            >
-              Wikipedia
-            </a>
+          <div className="popup-content">
+            <h3>{popupInfo.name}</h3>
+            <p><strong>{popupInfo.type}</strong></p>
+            <p>{popupInfo.location}</p>
+            <div className="popup-services">
+              {popupInfo.services.slice(0, 3).map((service, i) => (
+                <span key={i} className="popup-service">{service}</span>
+              ))}
+              {popupInfo.services.length > 3 && (
+                <span className="popup-service-more">
+                  +{popupInfo.services.length - 3} more
+                </span>
+              )}
+            </div>
           </div>
-          <img width="100%" src={popupInfo?.image ?? "😎"} />
         </Popup>
       )}
-    </>
+    </Map>
   );
 }
 
-export function Pins({ selectedShelterCardName, setPopupInfo }) {
+function Pins({ selectedShelterCardName, setPopupInfo }) {
   return (
     <>
-      {" "}
-      {SHELTERS.map((shelter, index) => {
-        // const selectedShelterCardName == shelter.name ? 40 : 20;
-        return (
-          <Marker
-            key={`marker-${index}`}
-            longitude={shelter.coordinates.longitude}
-            latitude={shelter.coordinates.latitude}
-            anchor="bottom"
-            onClick={(e) => {
-              // If we let the click event propagates to the map, it will immediately close the popup
-              // with `closeOnClick: true`
-              e.originalEvent.stopPropagation();
-              setPopupInfo(shelter);
-            }}
-          >
-            <Pin size={selectedShelterCardName == shelter.name ? 40 : 20} />
-          </Marker>
-        );
-      })}
+      {SHELTERS.map((shelter, index) => (
+        <Marker
+          key={`marker-${index}`}
+          longitude={shelter.coordinates.longitude}
+          latitude={shelter.coordinates.latitude}
+          anchor="bottom"
+          onClick={(e) => {
+            e.originalEvent.stopPropagation();
+            setPopupInfo(shelter);
+          }}
+        >
+          <Pin 
+            size={24} 
+            isSelected={selectedShelterCardName === shelter.name}
+          />
+        </Marker>
+      ))}
     </>
   );
 }
