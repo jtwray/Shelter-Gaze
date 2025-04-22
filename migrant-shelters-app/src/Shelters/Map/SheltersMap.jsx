@@ -13,46 +13,60 @@ import Pin from "./Pin";
 import SHELTERS from "../../assets/shelters.json";
 import './map.css';
 
-/**
- * Renders a map using the react-map-gl library. Displays markers on the map for each shelter
- * and allows the user to click on a marker to view more information about the shelter in a popup.
- *
- * @param {Object} props - The component props.
- * @param {Object} props.viewState - The current state of the map view.
- * @param {Function} props.setViewState - Function to update the view state.
- * @param {string} props.selectedShelterCardName - The name of the currently selected shelter card.
- * @param {Function} props.setPopupInfo - Function to set the information to be displayed in the popup.
- * @param {Object} props.popupInfo - Information about the shelter to be displayed in the popup.
- * @returns {JSX.Element} - The rendered component.
- */
+function Pins({ selectedShelterCardName, setPopupInfo, shelters = SHELTERS }) {
+  if (!shelters?.length) return null;
+
+  return (
+    <>
+      {shelters.map((shelter, index) => {
+        if (!shelter?.coordinates?.latitude || !shelter?.coordinates?.longitude) return null;
+        
+        return (
+          <Marker
+            key={`marker-${index}`}
+            longitude={shelter.coordinates.longitude}
+            latitude={shelter.coordinates.latitude}
+            anchor="bottom"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              setPopupInfo(shelter);
+            }}
+          >
+            <Pin 
+              size={24} 
+              isSelected={selectedShelterCardName === shelter.name}
+            />
+          </Marker>
+        );
+      })}
+    </>
+  );
+}
+
 export function SheltersMap({
-  viewState,
+  viewState = {
+    latitude: 40.7128,
+    longitude: -74.006,
+    zoom: 9,
+    bearing: 0,
+    pitch: 60,
+  },
   setViewState,
   selectedShelterCardName,
   setPopupInfo,
   popupInfo,
+  shelters = SHELTERS,
 }) {
-  /**
-   * Updates the view state with the new center coordinates whenever the map is moved.
-   *
-   * @param {Object} event - The move event.
-   */
   const onMove = useCallback(({ viewState }) => {
-    setViewState(viewState);
-  }, []);
+    setViewState?.(viewState);
+  }, [setViewState]);
 
   return (
     <Map
       id="mapA"
       onMove={onMove}
       {...viewState}
-      initialViewState={{
-        latitude: 40.7128,
-        longitude: -74.006,
-        zoom: 9,
-        bearing: 0,
-        pitch: 60,
-      }}
+      initialViewState={viewState}
       style={{ width: "100%", height: "100%" }}
       mapStyle="mapbox://styles/mapbox/navigation-night-v1"
       mapboxAccessToken={TOKEN}
@@ -77,13 +91,14 @@ export function SheltersMap({
       <Pins
         selectedShelterCardName={selectedShelterCardName}
         setPopupInfo={setPopupInfo}
+        shelters={shelters}
       />
 
       {popupInfo && (
         <Popup
           anchor="top"
-          longitude={Number(popupInfo.coordinates.longitude)}
-          latitude={Number(popupInfo.coordinates.latitude)}
+          longitude={Number(popupInfo.coordinates?.longitude) || 0}
+          latitude={Number(popupInfo.coordinates?.latitude) || 0}
           onClose={() => setPopupInfo(null)}
           closeButton={true}
           closeOnClick={false}
@@ -96,10 +111,10 @@ export function SheltersMap({
             <p><strong>{popupInfo.type}</strong></p>
             <p>{popupInfo.location}</p>
             <div className="popup-services">
-              {popupInfo.services.slice(0, 3).map((service, i) => (
+              {popupInfo.services?.slice(0, 3).map((service, i) => (
                 <span key={i} className="popup-service">{service}</span>
               ))}
-              {popupInfo.services.length > 3 && (
+              {(popupInfo.services?.length || 0) > 3 && (
                 <span className="popup-service-more">
                   +{popupInfo.services.length - 3} more
                 </span>
@@ -109,29 +124,5 @@ export function SheltersMap({
         </Popup>
       )}
     </Map>
-  );
-}
-
-function Pins({ selectedShelterCardName, setPopupInfo }) {
-  return (
-    <>
-      {SHELTERS.map((shelter, index) => (
-        <Marker
-          key={`marker-${index}`}
-          longitude={shelter.coordinates.longitude}
-          latitude={shelter.coordinates.latitude}
-          anchor="bottom"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            setPopupInfo(shelter);
-          }}
-        >
-          <Pin 
-            size={24} 
-            isSelected={selectedShelterCardName === shelter.name}
-          />
-        </Marker>
-      ))}
-    </>
   );
 }

@@ -3,7 +3,6 @@ import { SheltersList } from "./Shelters/SheltersList/SheltersList.jsx";
 import { Theme } from "@radix-ui/themes";
 import { shelters as _shelters } from "./assets/shelters.js";
 import { SheltersMap } from "./Shelters/Map/SheltersMap.jsx";
-import { Header } from "./components/Header";
 import { MobileNav } from "./components/MobileNav";
 import "./App.css";
 import { MapProvider } from "react-map-gl";
@@ -23,6 +22,7 @@ const App = () => {
 
   const onSelectShelter = useCallback(
     (mapRef, { longitude, latitude }, currentShelterName) => {
+      if (!mapRef) return;
       mapRef.flyTo({ 
         center: [longitude, latitude], 
         duration: 2000, 
@@ -56,14 +56,11 @@ const App = () => {
               popupInfo={popupInfo}
               setPopupInfo={setPopupInfo}
               selectedShelterCardName={selectedShelterName}
+              shelters={shelters}
             />
           </div>
           <div className="list-section">
-            <Header 
-              totalShelters={shelters.length}
-              onToggleMap={onToggleMap}
-              isMapVisible={activeView === "map"}
-            />
+         
             <SheltersList
               onSelectShelter={onSelectShelter}
               setPopupInfo={setPopupInfo}

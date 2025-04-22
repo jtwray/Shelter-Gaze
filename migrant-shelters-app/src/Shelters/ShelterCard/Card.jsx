@@ -110,17 +110,16 @@ const CardWithMap = ({
             position: "relative",
             borderRadius: "8px",
             overflow: "hidden",
+            backgroundColor: "var(--gray-3)",
           }}
         >
-          {isLoading ? (
-            <LoadingSkeleton height={calculatedHeight} />
-          ) : error ? (
+          {isLoading && <LoadingSkeleton height={calculatedHeight} />}
+          {error ? (
             <Flex
               align="center"
               justify="center"
               style={{
                 height: calculatedHeight,
-                background: "var(--gray-3)",
                 color: "var(--gray-11)",
                 borderRadius: "8px",
               }}
@@ -131,14 +130,18 @@ const CardWithMap = ({
             <AspectRatio ratio={aspectRatio}>
               <img
                 src={crossStreetMap}
-                alt="Map showing shelter location"
+                alt={`Map showing location of ${title}`}
                 style={{
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  opacity: isLoading ? 0 : 1,
-                  transition: "opacity 0.3s ease-in-out",
+                  opacity: isLoading ? 0.5 : 1,
+                  transition: "opacity 0.5s ease-in-out",
+                  filter: isLoading ? 'blur(2px)' : 'none',
+                  transform: isLoading ? 'scale(1.1)' : 'scale(1)',
                 }}
+                loading="lazy"
+                decoding="async"
               />
             </AspectRatio>
           )}

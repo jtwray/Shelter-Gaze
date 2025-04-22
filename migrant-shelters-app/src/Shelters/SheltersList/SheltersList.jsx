@@ -1,21 +1,24 @@
 import "./shelters-list.css";
 import { useMemo, useState } from "react";
-import { Flex, ScrollArea } from "@radix-ui/themes";
-import { CardWithMap } from "../ShelterCard/Card.jsx";
+import { ScrollArea } from "@radix-ui/themes";
+import { CachedCardWithMap } from "../ShelterCard/CachedCard.jsx";
 import { useMap } from "react-map-gl";
 import { usePagination } from "../../hooks/usePaginate.jsx";
 import { LoadingState } from "../../components/LoadingState";
-import { FilterBadges } from "../../components/FilterBadges";
+import { Header } from "../../components/Header";
 
-export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
+export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo }) => {
   const mapRef = useMap();
   const [isLoading, setIsLoading] = useState(false);
   const [activeFilters, setActiveFilters] = useState([]);
 
   const serviceCounts = useMemo(() => {
+    if (!shelters?.length) return new Map();
+
     const _serviceCounts = new Map();
     shelters.forEach((obj) => {
-      obj.services.forEach((service) => {
+      obj.services?.forEach((service) => {
+        if (!service) return;
         let _service = service.toLowerCase();
         if (_serviceCounts.has(_service)) {
           _serviceCounts.set(_service, _serviceCounts.get(_service) + 1);
@@ -28,15 +31,19 @@ export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
   }, [shelters]);
 
   const filteredShelters = useMemo(() => {
-    if (activeFilters.length === 0) return shelters;
+    if (!activeFilters?.length || !shelters?.length) return shelters || [];
+
     return shelters.filter(shelter =>
       activeFilters.every(filter =>
-        shelter.services.some(service => service.toLowerCase() === filter)
+        shelter.services?.some(service =>
+          service?.toLowerCase() === filter
+        )
       )
     );
   }, [shelters, activeFilters]);
 
   const handleFilterChange = (service) => {
+    if (!service) return;
     setActiveFilters(prev => {
       const isAlreadyActive = prev.includes(service);
       if (isAlreadyActive) {
@@ -46,21 +53,25 @@ export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
     });
   };
 
+  const handleClearFilters = () => {
+    setActiveFilters([]);
+  };
+
   const { PageOfCards, PaginationControls } = usePagination(
     filteredShelters,
     3,
     (props) => (
-      <CardWithMap
+      <CachedCardWithMap
         onSelectShelter={onSelectShelter}
-        mapRef={mapRef.mapA}
+        mapRef={mapRef?.mapA}
         setPopupInfo={setPopupInfo}
         shelter={props}
-        key={`${props.location ?? "_"}-${props.idx ?? "_"}-${props.name ?? "_"}`}
-        coords={props.coordinates}
-        title={props.name}
-        subheading={props.type}
-        address={props.location}
-        badges={props.services}
+        key={`${props?.location ?? "_"}-${props?.idx ?? "_"}-${props?.name ?? "_"}`}
+        coords={props?.coordinates}
+        title={props?.name}
+        subheading={props?.type}
+        address={props?.location}
+        badges={props?.services}
       />
     ),
     setIsLoading
@@ -68,13 +79,13 @@ export const SheltersList = ({ shelters, onSelectShelter, setPopupInfo }) => {
 
   return (
     <div className="list-panel">
-      <Flex direction="column" gap="4" p="4">
-        <FilterBadges
-          services={serviceCounts}
-          activeFilters={activeFilters}
-          onFilterChange={handleFilterChange}
-        />
-      </Flex>
+      <Header
+        totalShelters={filteredShelters.length}
+        services={serviceCounts}
+        activeFilters={activeFilters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+      />
       <ScrollArea className="cards-container" scrollbars="vertical">
         {isLoading ? (
           <LoadingState />

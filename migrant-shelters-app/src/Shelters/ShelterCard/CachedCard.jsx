@@ -1,0 +1,143 @@
+import React from "react";
+import {
+  Button,
+  Card,
+  Text,
+  Badge,
+  Box,
+  AspectRatio,
+  Flex,
+  ScrollArea,
+} from "@radix-ui/themes";
+import { RocketIcon } from "@radix-ui/react-icons";
+import { useStaticMapBox } from "../../hooks/useStaticMapBox.js";
+import { useImageCache } from "../../hooks/useImageCache.js";
+import { useWindowSize } from "../../hooks/useWindowSize";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton";
+
+export const CachedCardWithMap = ({
+  title,
+  subheading,
+  address,
+  badges,
+  coords,
+  onSelectShelter,
+  setPopupInfo,
+  mapRef,
+  shelter,
+}) => {
+  const [windowWidth] = useWindowSize();
+  const calculatedWidth = Math.min(613, windowWidth - 40);
+  const aspectRatio = 613 / 150;
+  const calculatedHeight = Math.round(calculatedWidth / aspectRatio);
+
+  // Get the map URL using existing hook
+  const [mapUrl, mapLoading, mapError] = useStaticMapBox(
+    coords.latitude,
+    coords.longitude,
+    15,
+    calculatedWidth,
+    calculatedHeight
+  );
+
+  // Cache the image using our new hook
+  const { cachedImage, isLoading: cacheLoading, error: cacheError } = useImageCache(
+    mapUrl,
+    {
+      namespace: 'shelter-maps',
+      version: '1.0',
+      expireAfter: 7 * 24 * 60 * 60 * 1000, // 1 week
+      maxEntries: 50
+    }
+  );
+
+  const isLoading = mapLoading || cacheLoading;
+  const error = mapError || cacheError;
+
+  return (
+    <Card size="3" style={{ maxWidth: calculatedWidth, margin: "0 auto" }}>
+      <Flex direction="column" gap="3">
+        <Flex justify="between" align="start">
+          <Box>
+            <Text as="div" size="5" weight="bold" mb="1">
+              {title}
+            </Text>
+            <Text as="div" size="2" color="gray">
+              {subheading}
+            </Text>
+            <Text as="div" size="2" style={{ marginTop: "4px" }}>
+              {address}
+            </Text>
+          </Box>
+          <Button
+            size="2"
+            variant="soft"
+            onClick={() => {
+              onSelectShelter(mapRef, coords, title);
+              setPopupInfo(shelter);
+            }}
+          >
+            <RocketIcon width="16" height="16" />
+            View on Map
+          </Button>
+        </Flex>
+
+        <ScrollArea>
+          <Flex gap="2" wrap="wrap" style={{ marginBottom: "8px" }}>
+            {badges.map((badge, index) => (
+              <Badge
+                key={index}
+                variant="soft"
+                color={["blue", "green", "orange", "red", "purple"][index % 5]}
+              >
+                {badge}
+              </Badge>
+            ))}
+          </Flex>
+        </ScrollArea>
+
+        <Box
+          style={{
+            position: "relative",
+            borderRadius: "8px",
+            overflow: "hidden",
+            backgroundColor: "var(--gray-3)",
+          }}
+        >
+          {isLoading && <LoadingSkeleton height={calculatedHeight} />}
+          {error ? (
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                height: calculatedHeight,
+                color: "var(--gray-11)",
+                borderRadius: "8px",
+              }}
+            >
+              Unable to load map
+            </Flex>
+          ) : (
+            <AspectRatio ratio={aspectRatio}>
+              <img
+                src={cachedImage || mapUrl}
+                alt={`Map showing location of ${title}`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: isLoading ? 0.5 : 1,
+                  transition: "opacity 0.5s ease-in-out",
+                  filter: isLoading ? 'blur(2px)' : 'none',
+                  transform: isLoading ? 'scale(1.1)' : 'scale(1)',
+                }}
+                loading="lazy"
+                decoding="async"
+              />
+            </AspectRatio>
+          )}
+        </Box>
+      </Flex>
+    </Card>
+  );
+};
