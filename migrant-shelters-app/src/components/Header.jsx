@@ -9,7 +9,9 @@ export const Header = ({
   isMapVisible = true,
   services,
   activeFilters,
+  activeBuckets = [],
   onFilterChange,
+  onBucketChange,
   onClearFilters
 }) => {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -17,6 +19,9 @@ export const Header = ({
   const toggleFilterDrawer = () => {
     setIsFilterDrawerOpen(prev => !prev);
   };
+
+  // Calculate total active filters (service filters + bucket filters)
+  const totalActiveFilters = (activeFilters?.length || 0) + (activeBuckets?.length || 0);
 
   return (
     <Flex
@@ -33,14 +38,14 @@ export const Header = ({
         <Flex gap="2">
           <Button 
             size="2" 
-            variant={activeFilters?.length > 0 ? "solid" : "soft"}
-            color={activeFilters?.length > 0 ? "blue" : "gray"}
+            variant={totalActiveFilters > 0 ? "solid" : "soft"}
+            color={totalActiveFilters > 0 ? "blue" : "gray"}
             onClick={toggleFilterDrawer}
             style={{ position: 'relative' }}
           >
             <MixerHorizontalIcon width="16" height="16" />
             Filter
-            {activeFilters?.length > 0 && (
+            {totalActiveFilters > 0 && (
               <span style={{
                 position: 'absolute',
                 top: '-6px',
@@ -55,7 +60,7 @@ export const Header = ({
                 fontSize: '11px',
                 color: 'white',
               }}>
-                {activeFilters.length}
+                {totalActiveFilters}
               </span>
             )}
           </Button>
@@ -82,9 +87,9 @@ export const Header = ({
           <Badge size="1" variant="soft" color="blue">
             New York City
           </Badge>
-          {activeFilters?.length > 0 && (
+          {totalActiveFilters > 0 && (
             <Text size="2" color="gray">
-              • {activeFilters?.length} filter{activeFilters?.length > 1 ? 's' : ''} active
+              • {totalActiveFilters} filter{totalActiveFilters > 1 ? 's' : ''} active
             </Text>
           )}
         </Flex>
@@ -93,7 +98,9 @@ export const Header = ({
         {!isFilterDrawerOpen && (
           <ActiveFilterChips 
             activeFilters={activeFilters}
+            activeBuckets={activeBuckets}
             onFilterChange={onFilterChange}
+            onBucketChange={onBucketChange}
             onClearFilters={onClearFilters}
           />
         )}
@@ -111,7 +118,9 @@ export const Header = ({
         onToggle={toggleFilterDrawer}
         services={services}
         activeFilters={activeFilters}
+        activeBuckets={activeBuckets}
         onFilterChange={onFilterChange}
+        onBucketChange={onBucketChange}
         onClearFilters={onClearFilters}
       />
     </Flex>
