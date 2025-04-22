@@ -1,5 +1,5 @@
 import "./shelters-list.css";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { ScrollArea } from "@radix-ui/themes";
 import { CachedCardWithMap } from "../ShelterCard/CachedCard.jsx";
 import { useMap } from "react-map-gl";
@@ -34,21 +34,33 @@ export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo, win
 
     // Create a set of all services to filter by (individual + from buckets)
     const filterServices = new Set(activeFilters);
-    
+
     // Add all services from active buckets
     activeBuckets.forEach(bucketName => {
       const bucketServices = getServicesInBucket(bucketName);
       bucketServices.forEach(service => filterServices.add(service));
     });
-    
+
+
+    const activeBucketFilters = [];
+    activeBuckets.forEach(bucketName => {
+      const bucketServices = getServicesInBucket(bucketName);
+      bucketServices.forEach(service => activeBucketFilters.push(service.toLowerCase()));
+    });
+    const sheltersWithServicesWithinActiveBuckets = shelters.filter(shelter => shelter.services?.some(service => activeBucketFilters.includes(service.toLowerCase())));
+    const shelterservices = shelters.map(shelter => shelter.services);
+
+    console.log("activeBucketFilters", activeBucketFilters);
+    console.log("sheltersWithServicesWithinActiveBuckets", sheltersWithServicesWithinActiveBuckets);
+
+
     // Filter shelters that have any of the selected services
     return shelters.filter((shelter) =>
-      shelter.services?.some((service) => filterServices.has(service))
-    );
+      shelter.services?.some((service) => filterServices.has(service.toLowerCase())));
   }, [shelters, activeFilters, activeBuckets]);
 
-  // Handle filter changes
-  const handleFilterChange = (service) => {
+  // Handle filter changes - memoized to prevent re-renders
+  const handleFilterChange = useCallback((service) => {
     setActiveFilters((prev) => {
       if (prev.includes(service)) {
         return prev.filter((s) => s !== service);
@@ -56,28 +68,28 @@ export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo, win
         return [...prev, service];
       }
     });
-  };
+  }, []);
 
-  // Handle bucket filter changes
-  const handleBucketChange = (bucketName) => {
+  // Handle bucket filter changes - memoized to prevent re-renders
+  const handleBucketChange = useCallback((bucketName) => {
     setActiveBuckets((prev) => {
       if (prev.includes(bucketName)) {
         return prev.filter((b) => b !== bucketName);
       } else {
         // When adding a bucket, remove any individual services that are part of this bucket
-        setActiveFilters((services) => 
+        setActiveFilters((services) =>
           services.filter((service) => !serviceInBucket(service, bucketName))
         );
         return [...prev, bucketName];
       }
     });
-  };
+  }, []);
 
-  // Clear all filters
-  const handleClearFilters = () => {
+  // Clear all filters - memoized to prevent re-renders
+  const handleClearFilters = useCallback(() => {
     setActiveFilters([]);
     setActiveBuckets([]);
-  };
+  }, []);
 
   // Preload all map images at the list level
   const [mapData, mapsLoading] = usePreloadedMaps(filteredShelters);

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { Flex, Heading, Text, Button, Badge } from '@radix-ui/themes';
 import { GlobeIcon, CaretSortIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
 import { FilterDrawer, ActiveFilterChips } from './FilterDrawer';
 
-export const Header = ({
+// Memoize the Header component
+export const Header = memo(({
   totalShelters,
   onToggleMap,
   isMapVisible = true,
@@ -16,12 +17,71 @@ export const Header = ({
 }) => {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   
-  const toggleFilterDrawer = () => {
+  // Use useCallback for toggleFilterDrawer
+  const toggleFilterDrawer = useCallback(() => {
     setIsFilterDrawerOpen(prev => !prev);
-  };
+  }, []);
 
-  // Calculate total active filters (service filters + bucket filters)
+  // Handle overlay click with stopping propagation
+  const handleOverlayClick = useCallback((e) => {
+    e.stopPropagation();
+    setIsFilterDrawerOpen(false);
+  }, []);
+
+  // Total active filters
   const totalActiveFilters = (activeFilters?.length || 0) + (activeBuckets?.length || 0);
+
+  // Memoize button components to prevent unnecessary re-renders
+  const FilterButton = useCallback(({ totalActiveFilters, onClick }) => (
+    <Button 
+      size="2" 
+      variant={totalActiveFilters > 0 ? "solid" : "soft"}
+      color={totalActiveFilters > 0 ? "blue" : "gray"}
+      onClick={onClick}
+      style={{ position: 'relative' }}
+    >
+      <MixerHorizontalIcon width="16" height="16" />
+      Filter
+      {totalActiveFilters > 0 && (
+        <span style={{
+          position: 'absolute',
+          top: '-6px',
+          right: '-6px',
+          background: 'var(--blue-9)',
+          borderRadius: '50%',
+          width: '18px',
+          height: '18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '11px',
+          color: 'white',
+        }}>
+          {totalActiveFilters}
+        </span>
+      )}
+    </Button>
+  ), []);
+
+  // Memoize map toggle button
+  const MapToggleButton = useCallback(({ onToggleMap, isMapVisible }) => (
+    <Button size="2" variant="soft" onClick={onToggleMap}>
+      <GlobeIcon width="16" height="16" />
+      {isMapVisible ? 'Hide Map' : 'Show Map'}
+    </Button>
+  ), []);
+
+  // Memoize the filter button click handler
+  const handleFilterButtonClick = useCallback((e) => {
+    e.stopPropagation();
+    toggleFilterDrawer();
+  }, [toggleFilterDrawer]);
+
+  // Memoize the map toggle button click handler
+  const handleMapToggleClick = useCallback((e) => {
+    e.stopPropagation();
+    onToggleMap();
+  }, [onToggleMap]);
 
   return (
     <Flex
@@ -31,39 +91,17 @@ export const Header = ({
       style={{
         borderBottom: '1px solid var(--gray-5)',
         background: 'var(--gray-1)',
+        position: 'relative',
+        zIndex: 10,
       }}
     >
       <Flex justify="between" align="center">
         <Heading size="4">Available Shelters</Heading>
         <Flex gap="2">
-          <Button 
-            size="2" 
-            variant={totalActiveFilters > 0 ? "solid" : "soft"}
-            color={totalActiveFilters > 0 ? "blue" : "gray"}
-            onClick={toggleFilterDrawer}
-            style={{ position: 'relative' }}
-          >
-            <MixerHorizontalIcon width="16" height="16" />
-            Filter
-            {totalActiveFilters > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-6px',
-                right: '-6px',
-                background: 'var(--blue-9)',
-                borderRadius: '50%',
-                width: '18px',
-                height: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                color: 'white',
-              }}>
-                {totalActiveFilters}
-              </span>
-            )}
-          </Button>
+          <FilterButton 
+            totalActiveFilters={totalActiveFilters} 
+            onClick={handleFilterButtonClick} 
+          />
           
           <Button size="2" variant="soft">
             <CaretSortIcon width="16" height="16" />
@@ -71,10 +109,10 @@ export const Header = ({
           </Button>
           
           {onToggleMap && (
-            <Button size="2" variant="soft" onClick={onToggleMap}>
-              <GlobeIcon width="16" height="16" />
-              {isMapVisible ? 'Hide Map' : 'Show Map'}
-            </Button>
+            <MapToggleButton 
+              onToggleMap={handleMapToggleClick} 
+              isMapVisible={isMapVisible} 
+            />
           )}
         </Flex>
       </Flex>
@@ -109,7 +147,7 @@ export const Header = ({
       {/* Overlay to close drawer when clicking outside */}
       <div 
         className={`drawer-overlay ${isFilterDrawerOpen ? 'visible' : ''}`} 
-        onClick={toggleFilterDrawer}
+        onClick={handleOverlayClick}
       />
       
       {/* Filter drawer */}
@@ -125,4 +163,4 @@ export const Header = ({
       />
     </Flex>
   );
-};
+});

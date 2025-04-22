@@ -93,7 +93,7 @@
   transform: translateY(-1px);
 }
 
-.filter-badge[data-state='active'] {
+.filter-badge[data-state="active"] {
   transform: scale(1.05);
   font-weight: 500;
 }
@@ -102,14 +102,15 @@
   #shelters-container {
     padding: 1rem;
   }
-  
+
   .pagination-controls {
     padding: 0.75rem;
   }
-  
+
   .pagination-btn {
     padding: 0.4rem;
     min-width: 2rem;
     font-size: 12px;
   }
 }
+

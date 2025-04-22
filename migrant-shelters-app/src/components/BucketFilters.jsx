@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useCallback, memo } from 'react';
 import { Flex, Badge, Text } from '@radix-ui/themes';
 import { PRIORITY_BUCKETS, BUCKET_LABELS } from '../utils/servicebuckets';
 
-export const BucketFilters = ({ activeBuckets, onBucketChange }) => {
-  // Bucket theme colors - use consistent colors for categories
+export const BucketFilters = memo(({ activeBuckets, onBucketChange }) => {
+  // Bucket theme colors
   const bucketColors = {
     shelter: "blue",
     food: "green",
@@ -15,12 +15,18 @@ export const BucketFilters = ({ activeBuckets, onBucketChange }) => {
     community: "yellow"
   };
   
-  // Count how many shelters offer services in each bucket
+  // Get bucket count (memoize this in a real app for large datasets)
   const getBucketCount = (bucketName) => {
     return PRIORITY_BUCKETS[bucketName].size;
   };
 
-  // Sort buckets by priority (order defined in the file)
+  // Handle bucket click with event stopping
+  const handleBucketClick = useCallback((e, bucketName) => {
+    e.stopPropagation();
+    onBucketChange(bucketName);
+  }, [onBucketChange]);
+
+  // Sort buckets by priority
   const sortedBuckets = Object.keys(PRIORITY_BUCKETS);
 
   return (
@@ -36,9 +42,11 @@ export const BucketFilters = ({ activeBuckets, onBucketChange }) => {
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               transform: activeBuckets.includes(bucketName) ? 'scale(1.05)' : 'scale(1)',
-              fontWeight: 500
+              fontWeight: 500,
+              // Use hardware acceleration
+              willChange: 'transform',
             }}
-            onClick={() => onBucketChange(bucketName)}
+            onClick={(e) => handleBucketClick(e, bucketName)}
           >
             {BUCKET_LABELS[bucketName]} ({getBucketCount(bucketName)})
           </Badge>
@@ -46,4 +54,4 @@ export const BucketFilters = ({ activeBuckets, onBucketChange }) => {
       </Flex>
     </Flex>
   );
-};
+});

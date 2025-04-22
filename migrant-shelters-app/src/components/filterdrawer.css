@@ -4,12 +4,14 @@
   right: 0;
   width: 300px;
   height: 100%;
-  background-color: var(--color-background);
+  background-color: var(--color-background, white);
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
   transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   overflow-y: auto;
+  will-change: transform; /* Hardware acceleration hint */
+  pointer-events: all;
 }
 
 .filter-drawer.open {
@@ -18,6 +20,7 @@
 
 .filter-drawer-content {
   padding: 20px;
+  isolation: isolate; /* Create a new stacking context */
 }
 
 /* Overlay when drawer is open */
@@ -32,11 +35,20 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
 }
 
 .drawer-overlay.visible {
   opacity: 1;
   visibility: visible;
+  pointer-events: all; /* Enable pointer events when visible */
+}
+
+/* Make sure all interactive elements in the drawer can be clicked */
+.filter-drawer button,
+.filter-drawer-content,
+.filter-drawer .rt-Badge {
+  pointer-events: auto;
 }
 
 /* Tablet and mobile adjustments */

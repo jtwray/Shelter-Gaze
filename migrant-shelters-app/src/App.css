@@ -1,8 +1,10 @@
 /* Base styles reset */
 :root {
   --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-elevation: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-elevation: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -11,7 +13,8 @@
   box-sizing: border-box;
 }
 
-body, #root {
+body,
+#root {
   width: 100%;
   height: 100vh;
   overflow: hidden;
@@ -35,7 +38,7 @@ body, #root {
 }
 
 .list-section {
-  flex: 0.8;
+  flex: 1;
   height: 100vh;
   background: var(--gray-1);
   box-shadow: var(--shadow-lg);
@@ -60,10 +63,11 @@ body, #root {
   border-radius: 12px;
   box-shadow: var(--shadow-elevation);
   transition: transform 0.3s var(--transition-timing);
+  transform: translateZ(0) scale(1.0);
 }
 
 .list-panel:hover {
-  transform: translateZ(0) scale(1.005);
+  transform: translateZ(0) scale(1.002);
 }
 
 .cards-container {
@@ -107,9 +111,10 @@ body, #root {
     flex-direction: column;
   }
 
-  .map-section, .list-section {
+  .map-section,
+  .list-section {
     transition: transform 0.3s var(--transition-timing),
-                opacity 0.3s var(--transition-timing);
+      opacity 0.3s var(--transition-timing);
   }
 
   .map-section {
@@ -157,5 +162,6 @@ body, #root {
 .fade-enter-active {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.3s var(--transition-timing), transform 0.3s var(--transition-timing);
+  transition: opacity 0.3s var(--transition-timing),
+    transform 0.3s var(--transition-timing);
 }
