@@ -12,7 +12,6 @@ import {
 import { RocketIcon } from "@radix-ui/react-icons";
 import { useStaticMapBox } from "../../hooks/useStaticMapBox.js";
 import { useImageCache } from "../../hooks/useImageCache.js";
-import { useWindowSize } from "../../hooks/useWindowSize";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
 
 export const CachedCardWithMap = ({
@@ -25,34 +24,39 @@ export const CachedCardWithMap = ({
   setPopupInfo,
   mapRef,
   shelter,
+  cachedMapImage, // Optional: Pre-cached image passed from parent
+  windowWidth, // Get windowWidth from props
 }) => {
-  const [windowWidth] = useWindowSize();
   const calculatedWidth = Math.min(613, windowWidth - 40);
   const aspectRatio = 613 / 150;
   const calculatedHeight = Math.round(calculatedWidth / aspectRatio);
 
-  // Get the map URL using existing hook
-  const [mapUrl, mapLoading, mapError] = useStaticMapBox(
-    coords.latitude,
-    coords.longitude,
-    15,
-    calculatedWidth,
-    calculatedHeight
-  );
+  let isLoading = false;
+  let error = null;
 
-  // Cache the image using our new hook
-  const { cachedImage, isLoading: cacheLoading, error: cacheError } = useImageCache(
-    mapUrl,
-    {
-      namespace: 'shelter-maps',
-      version: '1.0',
-      expireAfter: 7 * 24 * 60 * 60 * 1000, // 1 week
-      maxEntries: 50
-    }
-  );
+  const [mapUrl, mapLoading, mapError] = !cachedMapImage
+    ? useStaticMapBox(
+        coords.latitude,
+        coords.longitude,
+        15,
+        calculatedWidth,
+        calculatedHeight
+      )
+    : [null, false, null];
 
-  const isLoading = mapLoading || cacheLoading;
-  const error = mapError || cacheError;
+  const { cachedImage, isLoading: cacheLoading, error: cacheError } = !cachedMapImage
+    ? useImageCache(mapUrl, {
+        namespace: "shelter-maps",
+        version: "1.0",
+        expireAfter: 7 * 24 * 60 * 60 * 1000, // 1 week
+        maxEntries: 50,
+      })
+    : { cachedImage: null, isLoading: false, error: null };
+
+  isLoading = mapLoading || cacheLoading;
+  error = mapError || cacheError;
+
+  const imageToShow = cachedMapImage || cachedImage || mapUrl;
 
   return (
     <Card size="3" style={{ maxWidth: calculatedWidth, margin: "0 auto" }}>
@@ -120,7 +124,7 @@ export const CachedCardWithMap = ({
           ) : (
             <AspectRatio ratio={aspectRatio}>
               <img
-                src={cachedImage || mapUrl}
+                src={imageToShow}
                 alt={`Map showing location of ${title}`}
                 style={{
                   width: "100%",
@@ -128,8 +132,8 @@ export const CachedCardWithMap = ({
                   objectFit: "cover",
                   opacity: isLoading ? 0.5 : 1,
                   transition: "opacity 0.5s ease-in-out",
-                  filter: isLoading ? 'blur(2px)' : 'none',
-                  transform: isLoading ? 'scale(1.1)' : 'scale(1)',
+                  filter: isLoading ? "blur(2px)" : "none",
+                  transform: isLoading ? "scale(1.1)" : "scale(1)",
                 }}
                 loading="lazy"
                 decoding="async"

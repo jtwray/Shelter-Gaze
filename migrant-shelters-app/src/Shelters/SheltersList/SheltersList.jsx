@@ -6,8 +6,9 @@ import { useMap } from "react-map-gl";
 import { usePagination } from "../../hooks/usePaginate.jsx";
 import { LoadingState } from "../../components/LoadingState";
 import { Header } from "../../components/Header";
+import { usePreloadedMaps } from "../../hooks/usePreloadedMaps";
 
-export const SheltersList2 = ({ shelters = [], onSelectShelter, setPopupInfo }) => {
+export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo, windowWidth, windowHeight }) => {
   const mapRef = useMap();
   const [isLoading, setIsLoading] = useState(false);
   const [activeFilters, setActiveFilters] = useState([]);
@@ -42,6 +43,8 @@ export const SheltersList2 = ({ shelters = [], onSelectShelter, setPopupInfo }) 
     );
   }, [shelters, activeFilters]);
 
+  const [mapData, mapsLoading] = usePreloadedMaps(filteredShelters);
+
   const handleFilterChange = (service) => {
     if (!service) return;
     setActiveFilters(prev => {
@@ -56,6 +59,8 @@ export const SheltersList2 = ({ shelters = [], onSelectShelter, setPopupInfo }) 
   const handleClearFilters = () => {
     setActiveFilters([]);
   };
+
+  const combinedIsLoading = isLoading || mapsLoading;
 
   const { PageOfCards, PaginationControls } = usePagination(
     filteredShelters,
@@ -72,6 +77,9 @@ export const SheltersList2 = ({ shelters = [], onSelectShelter, setPopupInfo }) 
         subheading={props?.type}
         address={props?.location}
         badges={props?.services}
+        cachedMapImage={mapData[props.id || props.name]}
+        windowWidth={windowWidth}
+        windowHeight={windowHeight}
       />
     ),
     setIsLoading
@@ -87,53 +95,13 @@ export const SheltersList2 = ({ shelters = [], onSelectShelter, setPopupInfo }) 
         onClearFilters={handleClearFilters}
       />
       <ScrollArea className="cards-container" scrollbars="vertical">
-        {isLoading ? (
+        {combinedIsLoading ? (
           <LoadingState />
         ) : (
           <PageOfCards />
         )}
       </ScrollArea>
       <PaginationControls />
-    </div>
-  );
-};
-
-
-export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo }) => {
-  // Preload all map images at the list level
-  const [mapData, mapsLoading] = usePreloadedMaps(shelters);
-  
-  const { PageOfCards, PaginationControls } = usePagination(
-    shelters,
-    3,
-    (props) => (
-      <CachedCardWithMap
-        // All standard props
-        {...props}
-        // Pass the pre-cached image instead of fetching it
-        cachedMapImage={mapData[props.id]}
-        // No need for loading state - images are preloaded
-        isLoading={false}
-      />
-    ),
-    setIsLoading
-  );
-  
-  return (
-    <div className="list-panel">
-      {/* Show loading state only during initial load */}
-      {mapsLoading ? <LoadingState /> : (
-        <>
-          <Header 
-            totalShelters={filteredShelters.length} 
-            {...otherProps} 
-          />
-          <ScrollArea className="cards-container" scrollbars="vertical">
-            <PageOfCards />
-          </ScrollArea>
-          <PaginationControls />
-        </>
-      )}
     </div>
   );
 };

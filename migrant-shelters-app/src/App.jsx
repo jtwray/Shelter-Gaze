@@ -6,6 +6,8 @@ import { SheltersMap } from "./Shelters/Map/SheltersMap.jsx";
 import { MobileNav } from "./components/MobileNav";
 import "./App.css";
 import { MapProvider } from "react-map-gl";
+// Add back the useWindowSize hook
+import { useWindowSize } from "./hooks/useWindowSize.js";
 
 const App = () => {
   const [selectedShelterName, setSelectedShelterName] = useState(null);
@@ -19,14 +21,17 @@ const App = () => {
     bearing: 0,
     pitch: 60,
   });
+  
+  // Get window dimensions from useWindowSize hook
+  const [windowWidth, windowHeight] = useWindowSize();
 
   const onSelectShelter = useCallback(
     (mapRef, { longitude, latitude }, currentShelterName) => {
       if (!mapRef) return;
-      mapRef.flyTo({ 
-        center: [longitude, latitude], 
-        duration: 2000, 
-        zoom: 12 
+      mapRef.flyTo({
+        center: [longitude, latitude],
+        duration: 2000,
+        zoom: 12
       });
       setSelectedShelterName(currentShelterName);
       // Switch to map view on mobile when a shelter is selected
@@ -57,18 +62,21 @@ const App = () => {
               setPopupInfo={setPopupInfo}
               selectedShelterCardName={selectedShelterName}
               shelters={shelters}
+              windowWidth={windowWidth}
+              windowHeight={windowHeight}
             />
           </div>
           <div className="list-section">
-         
             <SheltersList
               onSelectShelter={onSelectShelter}
               setPopupInfo={setPopupInfo}
               shelters={shelters}
+              windowWidth={windowWidth}
+              windowHeight={windowHeight}
             />
           </div>
-          <MobileNav 
-            activeView={activeView} 
+          <MobileNav
+            activeView={activeView}
             onViewChange={setActiveView}
           />
         </MapProvider>

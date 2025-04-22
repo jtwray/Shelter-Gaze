@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
+import { getDeviceSignature } from '../utils/deviceSignature.js';
 
-const getDeviceSignature = () => ({
-  pixelRatio: window.devicePixelRatio || 1,
-  orientation: window.screen.orientation.type,
-  width: window.screen.width,
-  height: window.screen.height
-});
 
 export function useImageCache(url, options = {}) {
   const {
@@ -26,8 +21,8 @@ export function useImageCache(url, options = {}) {
     const now = Date.now();
 
     // Remove expired entries and check version
-    const validEntries = entries.filter(([_, entry]) => 
-      now - entry.timestamp < expireAfter && 
+    const validEntries = entries.filter(([_, entry]) =>
+      now - entry.timestamp < expireAfter &&
       entry.version === version
     );
 
@@ -57,11 +52,11 @@ export function useImageCache(url, options = {}) {
         const entry = cache[cacheKey];
 
         // Check if we have a valid cached entry
-        if (entry?.blob && 
-            entry.version === version &&
-            Date.now() - entry.timestamp < expireAfter &&
-            entry.device.pixelRatio === deviceSig.pixelRatio &&
-            entry.device.orientation === deviceSig.orientation) {
+        if (entry?.blob &&
+          entry.version === version &&
+          Date.now() - entry.timestamp < expireAfter &&
+          entry.device.pixelRatio === deviceSig.pixelRatio &&
+          entry.device.orientation === deviceSig.orientation) {
           setCachedImage(entry.blob);
           setIsLoading(false);
           return;

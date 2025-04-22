@@ -48,9 +48,9 @@ const CardWithMap = ({
   onSelectShelter,
   setPopupInfo,
   mapRef,
-  shelter,
+  shelter,windowWidth
 }) => {
-  const [windowWidth] = useWindowSize();
+
   const calculatedWidth = Math.min(613, windowWidth - 40);
   const aspectRatio = 613 / 150;
   const calculatedHeight = Math.round(calculatedWidth / aspectRatio);
