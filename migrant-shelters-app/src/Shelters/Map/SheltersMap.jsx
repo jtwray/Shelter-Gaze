@@ -11,6 +11,12 @@ import Pin from "./Pin";
 import SHELTERS from "../../assets/shelters.json";
 import './map.css';
 
+// Map style constants
+const MAP_STYLES = {
+  light: "mapbox://styles/mapbox/light-v11", // Light theme
+  dark: "mapbox://styles/mapbox/navigation-night-v1", // Dark theme
+};
+
 function Pins({ selectedShelterCardName, setPopupInfo, shelters = SHELTERS }) {
   if (!shelters?.length) return null;
 
@@ -49,10 +55,14 @@ export function SheltersMap({
   popupInfo,
   shelters = SHELTERS,
   windowWidth,
-  windowHeight
+  windowHeight,
+  theme = 'dark' // Default to dark theme
 }) {
   const mapRef = useRef();
   const [mapLoaded, setMapLoaded] = useState(false);
+  
+  // Use the appropriate map style based on theme
+  const mapStyle = MAP_STYLES[theme] || MAP_STYLES.dark;
   
   const handleViewStateChange = useCallback((evt) => {
     setViewState(evt.viewState);
@@ -107,7 +117,7 @@ export function SheltersMap({
         onMove={handleViewStateChange}
         onLoad={handleMapLoad}
         style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/navigation-night-v1"
+        mapStyle={mapStyle}
         mapboxAccessToken={import.meta.env.VITE_SHELTERHUB_API_KEY_PUB}
         dragRotate={true}
         pitchWithRotate={true}
@@ -146,7 +156,7 @@ export function SheltersMap({
             onClose={() => setPopupInfo(null)}
             closeButton={true}
             closeOnClick={false}
-            className="shelter-popup"
+            className={`shelter-popup ${theme === 'light' ? 'light-theme' : ''}`}
             maxWidth={windowWidth < 768 ? 300 : 400}
           >
             <div className="popup-content">

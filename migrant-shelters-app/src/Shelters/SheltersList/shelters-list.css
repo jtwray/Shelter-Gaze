@@ -146,19 +146,52 @@
   background-color: #e4ebf5;
 }
 
+/* Optimize list panel for fixed-width layout */
 .list-panel {
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  background: var(--gray-1);
 }
 
+/* Make sure the cards container takes up available space and scrolls */
 .cards-container {
-  /* flex: 1; */
-  /* overflow-y: auto; */
-  /* padding: 0;
-  margin: 0; */
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  scrollbar-width: thin;
+}
+
+/* Style scrollbar for webkit browsers */
+.cards-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cards-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cards-container::-webkit-scrollbar-thumb {
+  background-color: var(--gray-6);
+  border-radius: 6px;
+}
+
+/* Make sure shelter cards fit well in the fixed-width container */
+.shelter-card {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 1024px) {
+  /* Adjust padding for desktop */
+  .list-panel {
+    border-left: 1px solid var(--gray-4);
+  }
+  
+  /* Remove gap between map and list */
+  .list-panel {
+    margin-left: 0;
+  }
 }
 
 .optimized-cards-grid {
@@ -169,13 +202,6 @@
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-}
-
-.shelter-card {
-  width: 100%;
-  margin: 0;
-  border-radius: 8px;
-  overflow: hidden;
 }
 
 .pagination-wrapper {

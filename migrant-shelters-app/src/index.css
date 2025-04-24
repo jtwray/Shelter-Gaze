@@ -13,6 +13,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Add this to your CSS reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -24,6 +29,8 @@ a:hover {
 
 body {
   margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent document scrolling */
   display: flex;
   place-items: center;
   min-width: 320px;

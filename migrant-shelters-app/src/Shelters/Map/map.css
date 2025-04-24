@@ -77,17 +77,16 @@
   height: 100%;
 }
 
-/* Update the pitch-controls positioning */
+/* Update the pitch controls to match mapbox buttons */
 .pitch-controls {
   position: absolute;
   right: 10px;
-  top: 130px; /* Position below the NavigationControl (zoom & bearing buttons) */
+  top: 130px; /* Position below the NavigationControl */
   display: flex;
   flex-direction: column;
   z-index: 1;
 }
 
-/* Match the style of the Mapbox controls */
 .pitch-button {
   width: 29px;
   height: 29px;
@@ -98,14 +97,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   margin: 2px 0;
   padding: 0;
   line-height: 1;
-  color: white;
-  filter: invert(1);
+  color: white; 
 }
 
 .pitch-button:hover {
@@ -116,15 +114,47 @@
   background: rgba(0, 0, 0, 0.9);
 }
 
+/* Themed versions */
+[data-theme="light"] .pitch-button {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+[data-theme="light"] .pitch-button:hover {
+  background: #f0f0f0;
+}
+
+[data-theme="light"] .pitch-button:active {
+  background: #e6e6e6;
+}
+
 /* Create a container to group the buttons visually */
 .pitch-controls:before {
   content: "";
   position: absolute;
   inset: -1px;
   background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   z-index: -1;
+}
+
+[data-theme="light"] .pitch-controls:before {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Also update mapbox controls for light theme */
+[data-theme="light"] .mapboxgl-ctrl-group {
+  background: white !important;
+  backdrop-filter: none;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .mapboxgl-ctrl button {
+  filter: none;
 }
 
 /* Add a helper message that shows on map load */
@@ -146,4 +176,24 @@
 
 .map-helper-tip.visible {
   opacity: 1;
+}
+
+/* Add styles for light mode popups */
+[data-theme="light"] .shelter-popup .mapboxgl-popup-content {
+  background: white;
+  color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .shelter-popup .mapboxgl-popup-close-button {
+  color: #333;
+}
+
+[data-theme="light"] .popup-service {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .popup-service-more {
+  background: rgba(0, 150, 100, 0.15);
+  color: rgb(0, 100, 70);
 }
