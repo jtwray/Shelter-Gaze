@@ -1,6 +1,4 @@
-import * as React from "react";
-import { useCallback } from "react";
-const TOKEN = import.meta.env.VITE_SHELTERHUB_API_KEY_PUB;
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import Map, {
   Marker,
   Popup,
@@ -44,85 +42,150 @@ function Pins({ selectedShelterCardName, setPopupInfo, shelters = SHELTERS }) {
 }
 
 export function SheltersMap({
-  viewState = {
-    latitude: 40.7128,
-    longitude: -74.006,
-    zoom: 9,
-    bearing: 0,
-    pitch: 60,
-  },
+  viewState,
   setViewState,
   selectedShelterCardName,
   setPopupInfo,
   popupInfo,
   shelters = SHELTERS,
+  windowWidth,
+  windowHeight
 }) {
-  const onMove = useCallback(({ viewState }) => {
-    setViewState?.(viewState);
+  const mapRef = useRef();
+  const [mapLoaded, setMapLoaded] = useState(false);
+  
+  const handleViewStateChange = useCallback((evt) => {
+    setViewState(evt.viewState);
   }, [setViewState]);
 
+  const handleMapLoad = useCallback(() => {
+    setMapLoaded(true);
+    
+    if (mapRef.current) {
+      const mapInstance = mapRef.current.getMap();
+      
+      mapInstance.dragRotate.enable();
+      mapInstance.touchZoomRotate.enableRotation();
+      mapInstance.keyboard.enable();
+      
+      mapInstance.on('wheel', (e) => {
+        if (e.originalEvent.shiftKey) {
+          const currentPitch = mapInstance.getPitch();
+          const newPitch = Math.max(0, Math.min(85, currentPitch + e.originalEvent.deltaY * 0.1));
+          
+          mapInstance.setPitch(newPitch);
+          e.preventDefault();
+        }
+      });
+    }
+  }, []);
+  
+  const increasePitch = useCallback(() => {
+    if (mapRef.current) {
+      const mapInstance = mapRef.current.getMap();
+      const currentPitch = mapInstance.getPitch();
+      const newPitch = Math.min(85, currentPitch + 10);
+      mapInstance.easeTo({ pitch: newPitch, duration: 300 });
+    }
+  }, []);
+  
+  const decreasePitch = useCallback(() => {
+    if (mapRef.current) {
+      const mapInstance = mapRef.current.getMap();
+      const currentPitch = mapInstance.getPitch();
+      const newPitch = Math.max(0, currentPitch - 10);
+      mapInstance.easeTo({ pitch: newPitch, duration: 300 });
+    }
+  }, []);
+
   return (
-    <Map
-      id="mapA"
-      onMove={onMove}
-      {...viewState}
-      initialViewState={viewState}
-      style={{ width: "100%", height: "100%" }}
-      mapStyle="mapbox://styles/mapbox/navigation-night-v1"
-      mapboxAccessToken={TOKEN}
-      transitionDuration={1000}
-      transitionInterpolator={{ type: 'fly' }}
-    >
-      <GeolocateControl 
-        position="top-left"
-        showUserLocation
-        trackUserLocation
-        style={{ marginTop: '10px' }}
-      />
-      <FullscreenControl position="top-left" />
-      <NavigationControl
-        position="top-right"
-        showCompass
-        showZoom
-        visualizePitch
-      />
-      <ScaleControl position="bottom-right" />
+    <div className="map-container">
+      <Map
+        id="mapA"
+        {...viewState}
+        ref={mapRef}
+        onMove={handleViewStateChange}
+        onLoad={handleMapLoad}
+        style={{ width: "100%", height: "100%" }}
+        mapStyle="mapbox://styles/mapbox/navigation-night-v1"
+        mapboxAccessToken={import.meta.env.VITE_SHELTERHUB_API_KEY_PUB}
+        dragRotate={true}
+        pitchWithRotate={true}
+        attributionControl={false}
+        maxPitch={85}
+        minPitch={0}
+        touchPitch={true}
+        keyboard={true}
+      >
+        <GeolocateControl 
+          position="top-left"
+          showUserLocation={true}
+          trackUserLocation={true}
+          style={{ marginTop: "10px" }}
+        />
+        <FullscreenControl position="top-left" />
+        <NavigationControl
+          position="top-right"
+          showCompass={true}
+          showZoom={true}
+          visualizePitch={true}
+        />
+        <ScaleControl position="bottom-right" />
 
-      <Pins
-        selectedShelterCardName={selectedShelterCardName}
-        setPopupInfo={setPopupInfo}
-        shelters={shelters}
-      />
+        <Pins
+          selectedShelterCardName={selectedShelterCardName}
+          setPopupInfo={setPopupInfo}
+          shelters={shelters}
+        />
 
-      {popupInfo && (
-        <Popup
-          anchor="top"
-          longitude={Number(popupInfo.coordinates?.longitude) || 0}
-          latitude={Number(popupInfo.coordinates?.latitude) || 0}
-          onClose={() => setPopupInfo(null)}
-          closeButton={true}
-          closeOnClick={false}
-          className="shelter-popup"
-          tipSize={8}
-          offsetTop={12}
-        >
-          <div className="popup-content">
-            <h3>{popupInfo.name}</h3>
-            <p><strong>{popupInfo.type}</strong></p>
-            <p>{popupInfo.location}</p>
-            <div className="popup-services">
-              {popupInfo.services?.slice(0, 3).map((service, i) => (
-                <span key={i} className="popup-service">{service}</span>
-              ))}
-              {(popupInfo.services?.length || 0) > 3 && (
-                <span className="popup-service-more">
-                  +{popupInfo.services.length - 3} more
-                </span>
-              )}
+        {popupInfo && (
+          <Popup
+            anchor="bottom"
+            longitude={Number(popupInfo.coordinates?.longitude) || 0}
+            latitude={Number(popupInfo.coordinates?.latitude) || 0}
+            onClose={() => setPopupInfo(null)}
+            closeButton={true}
+            closeOnClick={false}
+            className="shelter-popup"
+            maxWidth={windowWidth < 768 ? 300 : 400}
+          >
+            <div className="popup-content">
+              <h3>{popupInfo.name}</h3>
+              <p><strong>{popupInfo.type}</strong></p>
+              <p>{popupInfo.location}</p>
+              <div className="popup-services">
+                {popupInfo.services?.slice(0, 3).map((service, i) => (
+                  <span key={i} className="popup-service">{service}</span>
+                ))}
+                {(popupInfo.services?.length || 0) > 3 && (
+                  <span className="popup-service-more">
+                    +{popupInfo.services.length - 3} more
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        </Popup>
-      )}
-    </Map>
+          </Popup>
+        )}
+      </Map>
+      
+      <div className="pitch-controls">
+        <button 
+          onClick={increasePitch}
+          className="pitch-button pitch-up"
+          title="Tilt map up"
+        >
+          ↑
+        </button>
+        <button 
+          onClick={decreasePitch}
+          className="pitch-button pitch-down"
+          title="Tilt map down"
+        >
+          ↓
+        </button>
+      </div>
+    </div>
   );
 }
+
+export default SheltersMap;

@@ -14,12 +14,17 @@ const App = () => {
   const [shelters] = useState(_shelters);
   const [popupInfo, setPopupInfo] = useState(null);
   const [activeView, setActiveView] = useState("map"); // For mobile view state
-  const [viewState, setViewState] = React.useState({
+  const [viewState, setViewState] = useState({
     latitude: 40.7128,
     longitude: -74.006,
     zoom: 9,
     bearing: 0,
     pitch: 60,
+    // Add these optional properties for better control
+    minPitch: 0,
+    maxPitch: 85,
+    minZoom: 2,
+    maxZoom: 20
   });
   
   // Get window dimensions from useWindowSize hook
