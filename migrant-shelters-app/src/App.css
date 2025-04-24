@@ -154,6 +154,32 @@ body,
   }
 }
 
+/* Adjust pagination to avoid overlap with mobile nav */
+@media (max-width: 1023px) {
+  /* Move pagination up to avoid overlap */
+  .pagination-wrapper {
+    margin-bottom: 70px; /* Add enough space for mobile nav */
+    padding-bottom: 16px;
+    position: relative;
+    z-index: 5; /* Lower than mobile nav z-index */
+  }
+  
+  /* Ensure mobile nav stays on top */
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000; /* Higher z-index to stay on top */
+    background: var(--gray-2);
+    border-top: 1px solid var(--gray-4);
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
 /* Small phone adjustments */
 @media (max-width: 480px) {
   .mobile-nav {

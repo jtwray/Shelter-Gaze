@@ -1,0 +1,110 @@
+/* Create this file if it doesn't exist */
+
+.shelter-card {
+  width: 100%;
+  position: relative;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.shelter-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  position: relative;
+}
+
+.card-img-container {
+  height: 140px;
+  overflow: hidden;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.shelter-card:hover .card-img {
+  transform: scale(1.05);
+}
+
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin-top: 8px;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.card-title {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-12);
+}
+
+.card-subtitle {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--gray-10);
+}
+
+.card-description {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gray-11);
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px 16px;
+}
+
+/* Dark mode styling */
+[data-theme="dark"] .shelter-card {
+  background-color: var(--gray-3);
+  border: 1px solid var(--gray-4);
+}
+
+[data-theme="dark"] .shelter-card:hover {
+  border-color: var(--gray-6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .card-title {
+  color: var(--gray-12);
+}
+
+[data-theme="dark"] .card-subtitle {
+  color: var(--gray-10);
+}
+
+[data-theme="dark"] .card-description {
+  color: var(--gray-11);
+}
+
+[data-theme="dark"] .card-badges .rt-Badge {
+  opacity: 0.9;
+}
+
+[data-theme="dark"] .card-action-btn {
+  background-color: var(--gray-4);
+  color: var(--gray-11);
+}
+
+[data-theme="dark"] .card-action-btn:hover {
+  background-color: var(--gray-5);
+}

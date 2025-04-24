@@ -2,11 +2,18 @@ import React from 'react';
 import { Button, Flex } from '@radix-ui/themes';
 import { GlobeIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { useViewport } from '../hooks/useViewport';
-import { shelters as _shelters } from "../assets/shelters.js";
 
 export const MobileNav = ({ activeView, onViewChange }) => {
   const { size } = useViewport();
   const isTinyScreen = size === 'xs-';
+  
+  // Add check for desktop view
+  const isDesktop = window.innerWidth >= 1024;
+  
+  // Don't render on desktop
+  if (isDesktop) {
+    return null;
+  }
 
   return (
     <Flex 
