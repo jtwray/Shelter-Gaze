@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getDeviceSignature } from '../utils/deviceSignature.js';
+// import { getDeviceSignature } from '../utils/deviceSignature.js';
 
 
 export function useImageCache(url, options = {}) {
@@ -14,6 +14,12 @@ export function useImageCache(url, options = {}) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const getDeviceSignature = () => ({
+    pixelRatio: window.devicePixelRatio || 1,
+    orientation: window.screen.orientation.type,
+    width: window.screen.width,
+    height: window.screen.height
+  });
   const getCacheKey = (url) => `${namespace}-${url}`;
 
   const clearOldEntries = (cache) => {
