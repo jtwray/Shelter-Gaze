@@ -28,7 +28,7 @@ export const CachedCardWithMap = ({
   windowWidth, // Get windowWidth from props
 }) => {
   const calculatedWidth = Math.min(613, windowWidth - 40);
-  const aspectRatio = 613 / 150;
+  const aspectRatio = 600/150; // 4:1 aspect ratio
   const calculatedHeight = Math.round(calculatedWidth / aspectRatio);
 
   let isLoading = false;

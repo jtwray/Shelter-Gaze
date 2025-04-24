@@ -14,6 +14,7 @@ export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo, win
   const [isLoading, setIsLoading] = useState(false);
   const [activeFilters, setActiveFilters] = useState([]);
   const [activeBuckets, setActiveBuckets] = useState([]);
+  const [filterMode, setFilterMode] = useState("any"); // "any" or "all"
 
   // Get service counts for filter options
   const serviceCounts = useMemo(() => {
@@ -28,36 +29,79 @@ export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo, win
 
   // Apply filters to shelter list
   const filteredShelters = useMemo(() => {
+    // If no filters are active, return all shelters
     if (activeFilters.length === 0 && activeBuckets.length === 0) {
       return shelters;
     }
 
+    // Helper function to normalize strings (lowercase, trim whitespace)
+    const normalize = str => str.toLowerCase().trim();
+
     // Create a set of all services to filter by (individual + from buckets)
-    const filterServices = new Set(activeFilters);
-
-    // Add all services from active buckets
-    activeBuckets.forEach(bucketName => {
-      const bucketServices = getServicesInBucket(bucketName);
-      bucketServices.forEach(service => filterServices.add(service));
+    const filterServices = new Set();
+    
+    // Add individual filters with normalization
+    activeFilters.forEach(service => {
+      filterServices.add(normalize(service));
     });
 
-
-    const activeBucketFilters = [];
+    // Add all services from active buckets with normalization
     activeBuckets.forEach(bucketName => {
       const bucketServices = getServicesInBucket(bucketName);
-      bucketServices.forEach(service => activeBucketFilters.push(service.toLowerCase()));
+      // Debug specific buckets
+      if (bucketName === "Employment") {
+        console.log(`Services in ${bucketName} bucket:`, bucketServices);
+      }
+      
+      bucketServices.forEach(service => {
+        const normalizedService = normalize(service);
+        filterServices.add(normalizedService);
+      });
     });
-    const sheltersWithServicesWithinActiveBuckets = shelters.filter(shelter => shelter.services?.some(service => activeBucketFilters.includes(service.toLowerCase())));
-    const shelterservices = shelters.map(shelter => shelter.services);
 
-    console.log("activeBucketFilters", activeBucketFilters);
-    console.log("sheltersWithServicesWithinActiveBuckets", sheltersWithServicesWithinActiveBuckets);
+    // Log the final set of services we're filtering by
+    console.log("All filter services:", [...filterServices]);
+    
+    // Helper function to get normalized shelter services
+    const getNormalizedShelterServices = shelter => {
+      if (!shelter.services || shelter.services.length === 0) return [];
+      return shelter.services.map(normalize);
+    };
+    
+    // Filter the shelters based on mode
+    const results = shelters.filter(shelter => {
+      const normalizedShelterServices = getNormalizedShelterServices(shelter);
+      
+      // Skip shelters with no services
+      if (normalizedShelterServices.length === 0) return false;
+      
+      if (filterMode === "all") {
+        // Must match ALL selected services
+        for (const service of filterServices) {
+          if (!normalizedShelterServices.includes(service)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        // Must match ANY selected service
+        for (const service of filterServices) {
+          if (normalizedShelterServices.includes(service)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    });
+    
+    console.log(`Filter mode: ${filterMode}, Results: ${results.length}`);
+    return results;
+  }, [shelters, activeFilters, activeBuckets, filterMode]);
 
-
-    // Filter shelters that have any of the selected services
-    return shelters.filter((shelter) =>
-      shelter.services?.some((service) => filterServices.has(service.toLowerCase())));
-  }, [shelters, activeFilters, activeBuckets]);
+  // Handle filter mode change
+  const handleToggleFilterMode = useCallback((mode) => {
+    setFilterMode(prevMode=>prevMode==='any'?'all':'any');
+  }, []);
 
   // Handle filter changes - memoized to prevent re-renders
   const handleFilterChange = useCallback((service) => {
@@ -127,18 +171,24 @@ export const SheltersList = ({ shelters = [], onSelectShelter, setPopupInfo, win
         services={serviceCounts}
         activeFilters={activeFilters}
         activeBuckets={activeBuckets}
+        filterMode={filterMode}
         onFilterChange={handleFilterChange}
         onBucketChange={handleBucketChange}
         onClearFilters={handleClearFilters}
+        handleToggleFilterMode={handleToggleFilterMode}
       />
       <ScrollArea className="cards-container" scrollbars="vertical">
         {combinedIsLoading ? (
           <LoadingState />
         ) : (
-          <PageOfCards />
+          <div className="optimized-cards-grid">
+            <PageOfCards />
+          </div>
         )}
       </ScrollArea>
-      <PaginationControls />
+      <div className="pagination-wrapper">
+        <PaginationControls />
+      </div>
     </div>
   );
 };

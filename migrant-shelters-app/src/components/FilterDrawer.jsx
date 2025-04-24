@@ -38,9 +38,9 @@
 //           activeBuckets={activeBuckets}
 //           onBucketChange={onBucketChange}
 //         />
-        
+
 //         <Separator my="3" size="4" />
-        
+
 //         {/* Then show individual service filters */}
 //         <FilterBadges 
 //           services={services} 
@@ -75,7 +75,7 @@
 //   onClearFilters 
 // }) => {
 //   if (!activeFilters?.length && !activeBuckets?.length) return null;
-  
+
 //   // Bucket colors for consistency
 //   const bucketColors = {
 //     shelter: "blue",
@@ -96,7 +96,7 @@
 //             () => onBucketChange(bucketName),
 //             [bucketName, onBucketChange]
 //         );
-        
+
 //         return (
 //             <Badge
 //                 key={`bucket-${bucketName}`}
@@ -130,12 +130,12 @@
 //         // Don't show services that are already covered by an active bucket
 //         const bucketName = getBucketForService(filter);
 //         if (bucketName && activeBuckets.includes(bucketName)) return null;
-        
+
 //         const handleFilterClick = React.useCallback(
 //           () => onFilterChange(filter),
 //           [filter, onFilterChange]
 //         );
-        
+
 //         return (
 //           <Badge
 //             key={filter}
@@ -163,7 +163,7 @@
 //           </Badge>
 //         );
 //       })}
-      
+
 //       {(activeFilters.length > 1 || activeBuckets.length > 0) && (
 //         <Button
 //           variant="ghost"
@@ -187,15 +187,15 @@ import { BucketFilters } from './BucketFilters';
 import { BUCKET_LABELS, getBucketForService } from '../utils/servicebuckets';
 import './filterdrawer.css';
 
-export const FilterDrawer = ({ 
-  isOpen, 
-  onToggle, 
+export const FilterDrawer = ({
+  isOpen,
+  onToggle,
   services,
   activeFilters,
-  activeBuckets = [], 
+  activeBuckets = [],
   onFilterChange,
   onBucketChange,
-  onClearFilters 
+  onClearFilters
 }) => {
   return (
     <div className={`filter-drawer ${isOpen ? 'open' : ''}`}>
@@ -205,8 +205,8 @@ export const FilterDrawer = ({
             <MixerHorizontalIcon width="16" height="16" />
             <Text weight="bold">Filter Shelters</Text>
           </Flex>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={onToggle}
             size="1"
           >
@@ -219,23 +219,23 @@ export const FilterDrawer = ({
           activeBuckets={activeBuckets}
           onBucketChange={onBucketChange}
         />
-        
+
         <Separator my="3" size="4" />
-        
+
         {/* Then show individual service filters */}
-        <FilterBadges 
-          services={services} 
-          activeFilters={activeFilters} 
+        <FilterBadges
+          services={services}
+          activeFilters={activeFilters}
           onFilterChange={onFilterChange}
           activeBuckets={activeBuckets}
         />
 
         {(activeFilters?.length > 0 || activeBuckets?.length > 0) && (
           <Flex justify="end" mt="3">
-            <Button 
-              size="1" 
-              variant="soft" 
-              color="gray" 
+            <Button
+              size="1"
+              variant="soft"
+              color="gray"
               onClick={onClearFilters}
             >
               Clear all filters
@@ -248,15 +248,16 @@ export const FilterDrawer = ({
 };
 
 // Active filters chips to show when drawer is closed
-export const ActiveFilterChips = ({ 
-  activeFilters, 
+export const ActiveFilterChips = ({
+  activeFilters,
   activeBuckets = [],
-  onFilterChange, 
+  onFilterChange,
   onBucketChange,
-  onClearFilters 
+  onClearFilters,
+  children
 }) => {
   if (!activeFilters?.length && !activeBuckets?.length) return null;
-  
+
   // Bucket colors for consistency
   const bucketColors = {
     shelter: "blue",
@@ -272,6 +273,7 @@ export const ActiveFilterChips = ({
   return (
     <Flex gap="2" wrap="wrap" align="center" style={{ marginTop: '8px' }}>
       {/* Show bucket filters first with consistent colors */}
+      {children}
       {activeBuckets.map((bucketName) => (
         <Badge
           key={`bucket-${bucketName}`}
@@ -298,13 +300,13 @@ export const ActiveFilterChips = ({
           />
         </Badge>
       ))}
-      
+
       {/* Then show individual service filters */}
       {activeFilters.map((filter) => {
         // Don't show services that are already covered by an active bucket
         const bucketName = getBucketForService(filter);
         if (bucketName && activeBuckets.includes(bucketName)) return null;
-        
+
         return (
           <Badge
             key={filter}
@@ -332,7 +334,7 @@ export const ActiveFilterChips = ({
           </Badge>
         );
       })}
-      
+
       {(activeFilters.length > 1 || activeBuckets.length > 0) && (
         <Button
           variant="ghost"

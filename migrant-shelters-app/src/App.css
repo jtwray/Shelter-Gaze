@@ -59,7 +59,7 @@ body,
   display: flex;
   flex-direction: column;
   background: var(--gray-1);
-  margin: 1rem;
+  /* margin: 1rem; */
   border-radius: 12px;
   box-shadow: var(--shadow-elevation);
   transition: transform 0.3s var(--transition-timing);
