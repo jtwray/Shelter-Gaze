@@ -22,6 +22,7 @@ body,
   color: var(--gray-12);
 }
 
+/* Base responsive layout */
 .app-container {
   display: flex;
   width: 100vw;
@@ -132,7 +133,7 @@ body,
   }
 
   .mobile-nav {
-    display: flex;
+    display: flex !important; /* Override the display: none in component */
   }
 
   /* View states */
@@ -150,6 +151,76 @@ body,
 
   .list-section:hover {
     flex: none;
+  }
+}
+
+/* Small phone adjustments */
+@media (max-width: 480px) {
+  .mobile-nav {
+    bottom: 8px;
+    padding: 6px;
+  }
+  
+  .mobile-nav button {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  /* Compact header for mobile */
+  .list-section .rt-Heading {
+    font-size: 18px !important;
+  }
+  
+  .list-section .rt-Button {
+    padding: 0 6px !important;
+    font-size: 13px !important;
+  }
+  
+  /* Smaller pagination controls */
+  .pagination-btn {
+    min-width: 1.8rem !important;
+    height: 1.8rem !important;
+    font-size: 13px !important;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 320px) {
+  .mobile-nav button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  /* Minimal UI for tiny screens */
+  .list-section .rt-Button {
+    padding: 0 4px !important;
+  }
+  
+  /* Hide less important elements */
+  .filter-mode-button-container {
+    display: none;
+  }
+}
+
+/* Medium screens (tablets) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .cards-container {
+    padding: 12px;
+  }
+  
+  .optimized-cards-grid {
+    gap: 12px;
+  }
+}
+
+/* Large screens optimization */
+@media (min-width: 1280px) {
+  .optimized-cards-grid {
+    max-width: 1200px;
+  }
+  
+  .list-section {
+    padding-top: 8px;
   }
 }
 

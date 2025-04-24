@@ -13,6 +13,7 @@ import { RocketIcon } from "@radix-ui/react-icons";
 import { useStaticMapBox } from "../../hooks/useStaticMapBox.js";
 import { useImageCache } from "../../hooks/useImageCache.js";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
+import { useViewport } from "../../hooks/useViewport";
 
 export const CachedCardWithMap = ({
   title,
@@ -24,11 +25,23 @@ export const CachedCardWithMap = ({
   setPopupInfo,
   mapRef,
   shelter,
-  cachedMapImage, // Optional: Pre-cached image passed from parent
-  windowWidth, // Get windowWidth from props
+  cachedMapImage,
+  windowWidth, 
+  windowHeight
 }) => {
-  const calculatedWidth = Math.min(613, windowWidth - 40);
-  const aspectRatio = 600/150; // 4:1 aspect ratio
+  const { size } = useViewport();
+  const isMobile = size === 'xs' || size === 'xs-' || size === 'sm';
+  
+  // Calculate responsive dimensions
+  const getPadding = () => {
+    if (size === 'xs-') return 8;
+    if (size === 'xs') return 12;
+    if (size === 'sm') return 16;
+    return 20;
+  };
+  
+  const calculatedWidth = Math.min(613, windowWidth - (getPadding() * 2));
+  const aspectRatio = isMobile ? 600/120 : 600/150; // More compact aspect ratio on mobile
   const calculatedHeight = Math.round(calculatedWidth / aspectRatio);
 
   let isLoading = false;
@@ -59,11 +72,11 @@ export const CachedCardWithMap = ({
   const imageToShow = cachedMapImage || cachedImage || mapUrl;
 
   return (
-    <Card size="3" style={{ maxWidth: calculatedWidth, margin: "0 auto" }}>
-      <Flex direction="column" gap="3">
-        <Flex justify="between" align="start">
-          <Box>
-            <Text as="div" size="5" weight="bold" mb="1">
+    <Card size={isMobile ? "2" : "3"} style={{ maxWidth: calculatedWidth, margin: "0 auto" }}>
+      <Flex direction="column" gap={isMobile ? "2" : "3"}>
+        <Flex justify="between" align="start" wrap={isMobile ? "wrap" : "nowrap"}>
+          <Box style={{ flex: 1, minWidth: isMobile ? '100%' : 'auto' }}>
+            <Text as="div" size={isMobile ? "3" : "5"} weight="bold" mb={isMobile ? "0" : "1"}>
               {title}
             </Text>
             <Text as="div" size="2" color="gray">
@@ -74,24 +87,26 @@ export const CachedCardWithMap = ({
             </Text>
           </Box>
           <Button
-            size="2"
+            size={isMobile ? "1" : "2"}
             variant="soft"
             onClick={() => {
               onSelectShelter(mapRef, coords, title);
               setPopupInfo(shelter);
             }}
+            style={isMobile ? { marginTop: '8px', alignSelf: 'flex-end' } : {}}
           >
-            <RocketIcon width="16" height="16" />
-            View on Map
+            <RocketIcon width={isMobile ? "14" : "16"} height={isMobile ? "14" : "16"} />
+            {isMobile ? 'Map' : 'View on Map'}
           </Button>
         </Flex>
 
-        <ScrollArea>
-          <Flex gap="2" wrap="wrap" style={{ marginBottom: "8px" }}>
+        <ScrollArea style={{ maxHeight: isMobile ? '60px' : '80px' }}>
+          <Flex gap="2" wrap="wrap" style={{ marginBottom: isMobile ? "4px" : "8px" }}>
             {badges.map((badge, index) => (
               <Badge
                 key={index}
                 variant="soft"
+                size={isMobile ? "1" : "2"}
                 color={["blue", "green", "orange", "red", "purple"][index % 5]}
               >
                 {badge}

@@ -1,18 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Box } from "@radix-ui/themes";
+import { useViewport } from './useViewport';
 
 const usePagination = (data, pageSize, CardComponent, setLoading) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shelters, setShelters] = useState([]);
   const [availablePages, setAvailablePages] = useState([]);
+  const { size } = useViewport();
+
+  // Determine responsive page size
+  const getResponsivePageSize = () => {
+    switch (size) {
+      case 'xs-': 
+      case 'xs': return 1; // Show 1 card per page on smallest screens
+      case 'sm': return 2; // Show 2 cards per page on small screens
+      default: return pageSize; // Use provided pageSize for larger screens
+    }
+  };
 
   useEffect(() => {
     if (data.length > 0) {
-      const pages = chunkArray(data, pageSize);
+      const responsivePageSize = getResponsivePageSize();
+      const pages = chunkArray(data, responsivePageSize);
       setAvailablePages(pages);
       setCurrentPage(1);
     }
-  }, [data, pageSize]);
+  }, [data, size]);
 
   useEffect(() => {
     const updatePage = async () => {
@@ -25,10 +38,21 @@ const usePagination = (data, pageSize, CardComponent, setLoading) => {
       }
     };
     updatePage();
-  }, [availablePages, currentPage]);
+  }, [availablePages, currentPage, setLoading]);
 
   const PaginationControls = () => {
-    const maxVisiblePages = pageSize; // Number of page buttons to show at once (excluding navigation)
+    // Determine number of page buttons based on viewport size
+    const getVisibleButtonCount = () => {
+      switch (size) {
+        case 'xs-': return 1; // Just current page
+        case 'xs': return 3; // Current +/- 1
+        case 'sm': return 3; // Current +/- 1
+        case 'md': return 5; // Current +/- 2
+        default: return 7; // Current +/- 3 for larger screens
+      }
+    };
+
+    const maxVisiblePages = getVisibleButtonCount();
 
     // Calculate the range of page numbers to display
     const getVisiblePageNumbers = () => {
@@ -55,40 +79,68 @@ const usePagination = (data, pageSize, CardComponent, setLoading) => {
     const totalPages = availablePages.length;
     const showStartEllipsis = visiblePageNumbers[0] > 1;
     const showEndEllipsis = visiblePageNumbers[visiblePageNumbers.length - 1] < totalPages;
+    const showFirstLastButtons = size !== 'xs-' && size !== 'xs'; // Hide first/last on mobile
 
     return (
       <Box className="pagination-controls" style={{
         display: 'flex',
+        flexDirection: size === 'xs-' || size === 'xs' ? 'column' : 'row',
         gap: '4px',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%'
       }}>
-        {/* First page button */}
-        <button
-          className="pagination-btn"
-          onClick={() => setCurrentPage(1)}
-          disabled={currentPage === 1}
-          title="First page"
-        >
-          {"<<"}
-        </button>
+        <Box style={{ 
+          display: 'flex', 
+          gap: '4px',
+          justifyContent: 'center', 
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          {showFirstLastButtons && (
+            <button
+              className="pagination-btn"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              title="First page"
+              style={{
+                minWidth: size === 'sm' ? '1.8rem' : '2rem',
+                height: size === 'sm' ? '1.8rem' : '2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {"<<"}
+            </button>
+          )}
 
-        {/* Previous page button */}
-        <button
-          className="pagination-btn"
-          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-          disabled={currentPage === 1}
-          title="Previous page"
-        >
-          {"<"}
-        </button>
+          <button
+            className="pagination-btn"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            title="Previous page"
+            style={{
+              minWidth: size === 'sm' ? '1.8rem' : '2rem',
+              height: size === 'sm' ? '1.8rem' : '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {"<"}
+          </button>
 
-        {/* Start ellipsis */}
-        {(
           <button
             className="pagination-btn ellipsis"
-            style={{ visibility: showStartEllipsis ? 'visible' : 'hidden' }}
+            style={{ 
+              visibility: showStartEllipsis ? 'visible' : 'hidden',
+              minWidth: size === 'sm' ? '1.8rem' : '2rem',
+              height: size === 'sm' ? '1.8rem' : '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
             onClick={() => {
               const newPage = Math.max(1, visiblePageNumbers[0] - maxVisiblePages);
               setCurrentPage(newPage);
@@ -97,32 +149,36 @@ const usePagination = (data, pageSize, CardComponent, setLoading) => {
           >
             ...
           </button>
-        )}
 
-        {/* Page number buttons */}
-        {visiblePageNumbers.map(pageNumber => (
+          {visiblePageNumbers.map(pageNumber => (
+            <button
+              key={pageNumber}
+              className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
+              onClick={() => setCurrentPage(pageNumber)}
+              title={`Page ${pageNumber}`}
+              style={{
+                minWidth: size === 'sm' ? '1.8rem' : '2rem',
+                height: size === 'sm' ? '1.8rem' : '2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: size === 'xs' ? '13px' : '14px'
+              }}
+            >
+              {pageNumber}
+            </button>
+          ))}
+
           <button
-            key={pageNumber}
-            className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
-            onClick={() => setCurrentPage(pageNumber)}
-            title={`Page ${pageNumber}`}
-            style={{
-              minWidth: '2rem',
-              height: '2rem',
+            className="pagination-btn ellipsis"
+            style={{ 
+              visibility: showEndEllipsis ? 'visible' : 'hidden',
+              minWidth: size === 'sm' ? '1.8rem' : '2rem',
+              height: size === 'sm' ? '1.8rem' : '2rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
-          >
-            {pageNumber}
-          </button>
-        ))}
-
-        {/* End ellipsis */}
-        {(
-          <button
-            className="pagination-btn ellipsis"
-            style={{ visibility: showEndEllipsis ? 'visible' : 'hidden' }}
             onClick={() => {
               const newPage = Math.min(totalPages, visiblePageNumbers[visiblePageNumbers.length - 1] + 1);
               setCurrentPage(newPage);
@@ -131,27 +187,53 @@ const usePagination = (data, pageSize, CardComponent, setLoading) => {
           >
             ...
           </button>
+
+          <button
+            className="pagination-btn"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            title="Next page"
+            style={{
+              minWidth: size === 'sm' ? '1.8rem' : '2rem',
+              height: size === 'sm' ? '1.8rem' : '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {">"}
+          </button>
+
+          {showFirstLastButtons && (
+            <button
+              className="pagination-btn"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              title="Last page"
+              style={{
+                minWidth: size === 'sm' ? '1.8rem' : '2rem',
+                height: size === 'sm' ? '1.8rem' : '2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {">>"}
+            </button>
+          )}
+        </Box>
+        
+        {/* Show page indicator on small screens */}
+        {(size === 'xs-' || size === 'xs') && (
+          <div style={{ 
+            fontSize: '12px', 
+            color: 'var(--gray-11)', 
+            marginTop: '4px',
+            textAlign: 'center'
+          }}>
+            Page {currentPage} of {totalPages}
+          </div>
         )}
-
-        {/* Next page button */}
-        <button
-          className="pagination-btn"
-          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-          disabled={currentPage === totalPages}
-          title="Next page"
-        >
-          {">"}
-        </button>
-
-        {/* Last page button */}
-        <button
-          className="pagination-btn"
-          onClick={() => setCurrentPage(totalPages)}
-          disabled={currentPage === totalPages}
-          title="Last page"
-        >
-          {">>"}
-        </button>
       </Box>
     );
   };

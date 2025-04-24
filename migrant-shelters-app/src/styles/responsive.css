@@ -1,0 +1,9 @@
+/* Responsive breakpoints */
+:root {
+  --breakpoint-xs: 320px;   /* Small phones */
+  --breakpoint-sm: 480px;   /* Large phones */
+  --breakpoint-md: 768px;   /* Tablets */
+  --breakpoint-lg: 1024px;  /* Small laptops/desktops */
+  --breakpoint-xl: 1280px;  /* Large desktops */
+  --breakpoint-xxl: 1536px; /* Extra large displays */
+}

@@ -1,11 +1,10 @@
 import React, { useState, useCallback, memo } from 'react';
-import { Flex, Heading, Text, Button, Badge, Tabs, Card, Tooltip } from '@radix-ui/themes';
-import { GlobeIcon, CaretSortIcon, MixerHorizontalIcon, InfoCircledIcon } from '@radix-ui/react-icons';
+import { Flex, Heading, Text, Button, Badge, Tooltip } from '@radix-ui/themes';
+import { GlobeIcon, CaretSortIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
 import { FilterDrawer, ActiveFilterChips } from './FilterDrawer';
 import { FilterModeToggle } from './FilterModeToggle';
-import { Switcherooni, Switcheroonie, ToggleSwitch, ToggleSwitch3 } from './Switch';
+import { useViewport } from '../hooks/useViewport';
 
-// Memoize the Header component
 export const Header = memo(({
   totalShelters,
   onToggleMap,
@@ -20,32 +19,30 @@ export const Header = memo(({
   handleToggleFilterMode
 }) => {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-
-  // Use useCallback for toggleFilterDrawer
+  const { size } = useViewport();
+  const isMobile = size === 'xs' || size === 'xs-' || size === 'sm';
+  
   const toggleFilterDrawer = useCallback(() => {
     setIsFilterDrawerOpen(prev => !prev);
   }, []);
 
-  // Handle overlay click with stopping propagation
   const handleOverlayClick = useCallback((e) => {
     e.stopPropagation();
     setIsFilterDrawerOpen(false);
   }, []);
 
-  // Total active filters
   const totalActiveFilters = (activeFilters?.length || 0) + (activeBuckets?.length || 0);
 
-  // Memoize button components to prevent unnecessary re-renders
   const FilterButton = useCallback(({ totalActiveFilters, onClick }) => (
     <Button
-      size="2"
+      size={isMobile ? "1" : "2"}
       variant={totalActiveFilters > 0 ? "solid" : "soft"}
       color={totalActiveFilters > 0 ? "blue" : "gray"}
       onClick={onClick}
       style={{ position: 'relative' }}
     >
-      <MixerHorizontalIcon width="16" height="16" />
-      Filter
+      <MixerHorizontalIcon width={isMobile ? "14" : "16"} height={isMobile ? "14" : "16"} />
+      {!isMobile && "Filter"}
       {totalActiveFilters > 0 && (
         <span style={{
           position: 'absolute',
@@ -53,8 +50,8 @@ export const Header = memo(({
           right: '-6px',
           background: 'var(--blue-9)',
           borderRadius: '50%',
-          width: '18px',
-          height: '18px',
+          width:(isMobile ? '16px' : '18px'),
+          height:(isMobile ? '16px' : '18px'),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -65,90 +62,30 @@ export const Header = memo(({
         </span>
       )}
     </Button>
-  ), []);
+  ), [isMobile]);
 
-  // Memoize map toggle button
   const MapToggleButton = useCallback(({ onToggleMap, isMapVisible }) => (
-    <Button size="2" variant="soft" onClick={onToggleMap}>
-      <GlobeIcon width="16" height="16" />
-      {isMapVisible ? 'Hide Map' : 'Show Map'}
+    <Button size={isMobile ? "1" : "2"} variant="soft" onClick={onToggleMap}>
+      <GlobeIcon width={isMobile ? "14" : "16"} height={isMobile ? "14" : "16"} />
+      {!isMobile && (isMapVisible ? 'Hide Map' : 'Show Map')}
     </Button>
-  ), []);
+  ), [isMobile]);
 
-  // Memoize filter mode toggle handler
-  const handleFilterModeToggle = useCallback((e) => {
-    handleToggleFilterMode(e.target.checked ? 'any' : 'all');
-  }, [handleToggleFilterMode]);
-
-  // Memoize the filter button click handler
   const handleFilterButtonClick = useCallback((e) => {
     e.stopPropagation();
     toggleFilterDrawer();
   }, [toggleFilterDrawer]);
 
-  // Memoize the map toggle button click handler
   const handleMapToggleClick = useCallback((e) => {
     e.stopPropagation();
     onToggleMap();
   }, [onToggleMap]);
 
   return (
-    // <Flex
-    //   direction="column"
-    //   gap="3"
-    //   p="4"
-    //   style={{
-    //     borderBottom: '1px solid var(--gray-5)',
-    //     background: 'var(--gray-1)',
-    //     position: 'relative',
-    //     zIndex: 10,
-    //   }}
-    // >
-    //   <Flex justify="between" align="center">
-    //     <Heading size="4">Available Shelters</Heading>
-    //     <Flex gap="2" align="center">
-    //       <FilterButton
-    //         totalActiveFilters={totalActiveFilters}
-    //         onClick={handleFilterButtonClick}
-    //       />
-
-    //       <Button size="2" variant="soft">
-    //         <CaretSortIcon width="16" height="16" />
-    //         Sort
-    //       </Button>
-
-    //       <Tooltip content={filterMode === 'any' ? 'Match any filter (OR)' : 'Match all filters (AND)'}>
-    //         <Flex align="center" gap="1" style={{ marginLeft: '4px' }}>
-    //           <Text size="1" style={{ whiteSpace: 'nowrap', color: 'var(--gray-11)' }}>
-    //             {filterMode === 'any' ? 'Any' : 'All'}
-    //           </Text>
-    //           <ToggleSwitch
-    //             handleToggleSwitch={handleFilterModeToggle}
-    //             switchId="filterMode"
-    //             switchState={filterMode === 'any'}
-    //             size="small"
-    //           />
-    //           <ToggleSwitch3
-    //             handleToggleSwitch={handleFilterModeToggle}
-    //             switchId="filterMode_ToggleSwitch3"
-    //             switchState={filterMode === 'any'}
-    //             switchLabel="ToggleSwitch3"
-    //           />
-    //         </Flex>
-    //       </Tooltip>
-
-    //       {onToggleMap && (
-    //         <MapToggleButton
-    //           onToggleMap={handleMapToggleClick}
-    //           isMapVisible={isMapVisible}
-    //         />
-    //       )}
-    //     </Flex>
-    //   </Flex>
     <Flex
       direction="column"
       gap="3"
-      p="4"
+      p={isMobile ? "2" : "4"}
       style={{
         borderBottom: '1px solid var(--gray-5)',
         background: 'var(--gray-1)',
@@ -156,25 +93,38 @@ export const Header = memo(({
         zIndex: 10,
       }}
     >
-      <Flex justify="between" align="center">
-        <Heading size="4">Available Shelters</Heading>
-        <Flex gap="2" align="center">
+      <Flex justify="between" align="center" wrap={isMobile ? "wrap" : "nowrap"} gap={isMobile ? "1" : "0"}>
+        <Heading 
+        size={isMobile ? "3" : "4"}
+         style={{ 
+          marginBottom:(isMobile ? "4px" : "0"),
+          ...(isMobile && { width: '100%' })
+        }
+        }>
+          Available Shelters
+        </Heading>
+        <Flex gap={isMobile ? "1" : "2"} align="center" wrap="wrap">
           <FilterButton
             totalActiveFilters={totalActiveFilters}
             onClick={handleFilterButtonClick}
           />
 
-          <Button size="2" variant="soft">
-            <CaretSortIcon width="16" height="16" />
-            Sort
-          </Button>
+          {/* Only show Sort button on non-mobile */}
+          {!isMobile && (
+            <Button size="2" variant="soft">
+              <CaretSortIcon width="16" height="16" />
+              Sort
+            </Button>
+          )}
 
           <FilterModeToggle
             filterMode={filterMode}
             onChange={handleToggleFilterMode}
+            compact={isMobile}
           />
 
-          {onToggleMap && (
+          {/* Only show Map Toggle on non-mobile */}
+          {onToggleMap && !isMobile && (
             <MapToggleButton
               onToggleMap={handleMapToggleClick}
               isMapVisible={isMapVisible}
@@ -182,22 +132,22 @@ export const Header = memo(({
           )}
         </Flex>
       </Flex>
+      
       <Flex direction="column" gap="2">
-        <Flex align="center" gap="2">
-          <Text size="2" color="gray">
+        <Flex align="center" gap="2" wrap="wrap">
+          <Text size={isMobile ? "1" : "2"} color="gray">
             {totalShelters} locations found
           </Text>
           <Badge size="1" variant="soft" color="blue">
             New York City
           </Badge>
-  {totalActiveFilters > 0 && (
-            <Text size="2" color="gray">
+          {totalActiveFilters > 0 && (
+            <Text size={isMobile ? "1" : "2"} color="gray">
               • {totalActiveFilters} filter{totalActiveFilters > 1 ? 's' : ''} active
             </Text>
           )}
         </Flex>
 
-        {/* Show active filter chips when drawer is closed */}
         {!isFilterDrawerOpen && (
           <ActiveFilterChips
             activeFilters={activeFilters}
@@ -205,23 +155,15 @@ export const Header = memo(({
             onFilterChange={onFilterChange}
             onBucketChange={onBucketChange}
             onClearFilters={onClearFilters}
-          > 
-          {/* {totalActiveFilters > 0 && (
-            <Text size="2" color="gray">
-              • {totalActiveFilters} filter{totalActiveFilters > 1 ? 's' : ''} active
-            </Text>
-          )} */}
-          </ActiveFilterChips>
+          />
         )}
       </Flex>
 
-      {/* Overlay to close drawer when clicking outside */}
       <div
         className={`drawer-overlay ${isFilterDrawerOpen ? 'visible' : ''}`}
         onClick={handleOverlayClick}
       />
 
-      {/* Filter drawer */}
       <FilterDrawer
         isOpen={isFilterDrawerOpen}
         onToggle={toggleFilterDrawer}
