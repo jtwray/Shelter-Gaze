@@ -29,6 +29,7 @@ export const MobileNav = ({ activeView, onViewChange }) => {
         boxShadow: 'var(--shadow-elevation)',
         zIndex: 1000,
         opacity: 0.95,
+        width:'fit-content',
       }}
       gap="2"
     >
