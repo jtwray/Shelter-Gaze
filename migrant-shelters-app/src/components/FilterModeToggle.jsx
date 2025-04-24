@@ -23,7 +23,7 @@ export const FilterModeToggle = memo(({ filterMode, onChange, compact = false })
                     <Text size={compact ? "1" : "2"}>Any</Text>
                 </div>
 
-                <style jsx>{`
+                <style >{`
                     .filter-mode-button-container {
                         display: flex;
                         border-radius: 6px;
